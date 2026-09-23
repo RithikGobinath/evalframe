@@ -13,16 +13,18 @@
    $env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
    ```
 
-5. Check that the [Nemotron 3.5 Lightning endpoint](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free) still shows **Free**, then run two cases first. The `--no-mlflow` flag is unnecessary: local MLflow works without a hosted service.
+5. Check that the [Gemma 4 31B endpoint](https://openrouter.ai/google/gemma-4-31b-it:free) still shows **Free**, then run two cases first. The `--no-mlflow` flag is unnecessary: local MLflow works without a hosted service.
 
    ```powershell
    evalframe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
    evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-     --model openrouter:nvidia/nemotron-3.5-lightning:free --max-cases 2 `
-     --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+     --model openrouter:google/gemma-4-31b-it:free --max-cases 2 `
+     --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
    ```
 
-6. Inspect `runs/smoke-openrouter/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The full 500-case benchmark dataset and durable Cloud Run workflow still need to be built.
+6. Inspect `runs/smoke-gemma/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The full 500-case benchmark dataset and durable Cloud Run workflow still need to be built.
+
+The first live smoke run with `nvidia/nemotron-3.5-lightning:free` reached OpenRouter successfully but produced long reasoning text. Both classification outputs hit the 128-token limit and scored zero. This verifies connectivity, not benchmark quality. Gemma is the next candidate; its output quality has not yet been verified in this project.
 
 ### Git Bash on Windows
 
@@ -33,8 +35,8 @@ read -r -s -p "OpenRouter API key: " OPENROUTER_API_KEY; echo
 export OPENROUTER_API_KEY
 ./.venv/Scripts/evalframe.exe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
 ./.venv/Scripts/evalframe.exe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml \
-  --model openrouter:nvidia/nemotron-3.5-lightning:free \
-  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+  --model openrouter:google/gemma-4-31b-it:free \
+  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
 ```
 
 ## If you already have paid OpenRouter credits

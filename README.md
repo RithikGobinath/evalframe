@@ -47,16 +47,16 @@ read -r -s -p "OpenRouter API key: " OPENROUTER_API_KEY; echo
 export OPENROUTER_API_KEY
 ./.venv/Scripts/evalframe.exe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
 ./.venv/Scripts/evalframe.exe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml \
-  --model openrouter:nvidia/nemotron-3.5-lightning:free \
-  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+  --model openrouter:google/gemma-4-31b-it:free \
+  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
 ```
 
-Run a small diagnostic using the currently free [Nemotron 3.5 Lightning endpoint](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free). Check that the model still shows **Free** before running, since availability and pricing can change:
+Run a small diagnostic using the currently free [Gemma 4 31B endpoint](https://openrouter.ai/google/gemma-4-31b-it:free). Check that the model still shows **Free** before running, since availability and pricing can change:
 
 ```powershell
 evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-  --model openrouter:nvidia/nemotron-3.5-lightning:free --max-cases 2 `
-  --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+  --model openrouter:google/gemma-4-31b-it:free --max-cases 2 `
+  --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
 ```
 
 To compare Claude and GPT with an existing paid credit balance, use exact model IDs from the OpenRouter catalog and repeat `--model`, keeping `--max-cases 2` for the first test. A ChatGPT or Claude chat subscription does not fund these API calls.
