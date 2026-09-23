@@ -66,8 +66,11 @@ async def _evaluate_case(
     system: str,
     max_output_tokens: int,
     semaphore: asyncio.Semaphore,
-) -> dict:
+    rate_limited: asyncio.Event,
+) -> dict | None:
     async with semaphore:
+        if rate_limited.is_set():
+            return None
         started = time.perf_counter()
         try:
             response = await provider.generate(model, system, case.input, max_output_tokens)
@@ -88,6 +91,8 @@ async def _evaluate_case(
             }
         except Exception as exc:
             # Provider error bodies may contain user content; keep only safe metadata.
+            if getattr(exc, "status_code", None) == 429:
+                rate_limited.set()
             return {
                 "case_id": case.case_id,
                 "task_type": case.task_type,
@@ -129,23 +134,39 @@ async def _run_model(
     unknown = set(existing) - {case.case_id for case in cases}
     if unknown:
         raise ValueError(f"Checkpoint contains unknown case IDs: {sorted(unknown)}")
-    pending = [case for case in cases if case.case_id not in existing]
+    # Older checkpoints may contain 429 rows. Those requests never produced an
+    # evaluation result, so allow the same run ID to retry them later.
+    pending = [
+        case for case in cases
+        if case.case_id not in existing or existing[case.case_id].get("status_code") == 429
+    ]
     if pending:
         provider = provider_factory(provider_name)
         try:
             semaphore = asyncio.Semaphore(concurrency)
+            rate_limited = asyncio.Event()
             tasks = [
                 asyncio.create_task(
-                    _evaluate_case(case, provider, model, systems[case.task_type], max_output_tokens, semaphore)
+                    _evaluate_case(
+                        case, provider, model, systems[case.task_type], max_output_tokens,
+                        semaphore, rate_limited,
+                    )
                 )
                 for case in pending
             ]
             with checkpoint.open("a", encoding="utf-8") as stream:
                 for task in asyncio.as_completed(tasks):
                     row = await task
+                    if row is None or row.get("status_code") == 429:
+                        continue
                     stream.write(json.dumps(row, ensure_ascii=False) + "\n")
                     stream.flush()
                     existing[row["case_id"]] = row
+            if rate_limited.is_set():
+                raise ValueError(
+                    f"{spec} returned HTTP 429 (rate limited). Pending cases were not called; "
+                    "retry this run ID after checking OpenRouter activity and limits."
+                )
         finally:
             await provider.close()
     return [existing[case.case_id] for case in cases]

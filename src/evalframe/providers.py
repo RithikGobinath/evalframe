@@ -60,7 +60,7 @@ class OpenRouterProvider:
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
             timeout=90.0,
-            max_retries=2,
+            max_retries=0,
         )
 
     async def generate(self, model: str, system: str, user: str, max_output_tokens: int) -> ProviderResponse:

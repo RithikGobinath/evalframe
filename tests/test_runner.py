@@ -1,6 +1,8 @@
 import asyncio
 import json
 
+import pytest
+
 from evalframe.providers import ProviderResponse
 from evalframe.runner import run_evaluation
 
@@ -79,3 +81,66 @@ def test_run_logs_comparison_to_mlflow(tmp_path):
     assert experiment is not None
     runs = mlflow.search_runs(experiment_ids=[experiment.experiment_id])
     assert len(runs) == 2
+
+
+def test_rate_limit_stops_queued_cases_without_checkpointing_429(tmp_path):
+    class RateLimitError(Exception):
+        status_code = 429
+
+    class RateLimitedProvider:
+        calls = 0
+
+        async def generate(self, model, system, user, max_output_tokens):
+            self.calls += 1
+            raise RateLimitError()
+
+        async def close(self):
+            pass
+
+    dataset = tmp_path / "cases.jsonl"
+    dataset.write_text(
+        "\n".join(
+            json.dumps({"case_id": str(i), "task_type": "classification", "input": "Ticket", "expected": "billing"})
+            for i in range(3)
+        ) + "\n",
+        encoding="utf-8",
+    )
+    prompt = tmp_path / "prompts.toml"
+    prompt.write_text(
+        'version = "v1"\n' + "\n".join(
+            f'[tasks.{task}]\nsystem = "Answer briefly"'
+            for task in ("classification", "extraction", "qa", "summarization", "instruction_following")
+        ),
+        encoding="utf-8",
+    )
+    fake = RateLimitedProvider()
+    with pytest.raises(ValueError, match="HTTP 429"):
+        asyncio.run(run_evaluation(
+            dataset=dataset,
+            prompt_file=prompt,
+            model_specs=["openrouter:fake-model"],
+            output_root=tmp_path / "runs",
+            run_id="rate-limited",
+            concurrency=1,
+            provider_factory=lambda _: fake,
+            log_mlflow=False,
+        ))
+    assert fake.calls == 1
+    checkpoint = next((tmp_path / "runs" / "rate-limited").glob("cases-*.jsonl"))
+    assert checkpoint.read_text(encoding="utf-8") == ""
+
+    # A 429 saved by an older version must not permanently skip that case.
+    checkpoint.write_text(json.dumps({"case_id": "0", "status": "error", "status_code": 429}) + "\n", encoding="utf-8")
+    healthy = FakeProvider()
+    _, summary = asyncio.run(run_evaluation(
+        dataset=dataset,
+        prompt_file=prompt,
+        model_specs=["openrouter:fake-model"],
+        output_root=tmp_path / "runs",
+        run_id="rate-limited",
+        concurrency=1,
+        provider_factory=lambda _: healthy,
+        log_mlflow=False,
+    ))
+    assert healthy.calls == 3
+    assert summary["openrouter:fake-model"]["mean_score"] == 1.0

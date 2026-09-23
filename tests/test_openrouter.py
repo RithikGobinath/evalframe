@@ -34,6 +34,7 @@ def test_openrouter_uses_chat_completions_and_preserves_usage(monkeypatch):
     asyncio.run(provider.close())
 
     assert observed["client"]["base_url"] == "https://openrouter.ai/api/v1"
+    assert observed["client"]["max_retries"] == 0
     assert observed["request"] == {
         "model": "anthropic/claude-haiku-4.5",
         "messages": [{"role": "system", "content": "Classify"}, {"role": "user", "content": "A ticket"}],

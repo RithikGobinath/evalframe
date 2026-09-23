@@ -24,7 +24,7 @@
 
 6. Inspect `runs/smoke-gemma/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The full 500-case benchmark dataset and durable Cloud Run workflow still need to be built.
 
-The first live smoke run with `nvidia/nemotron-3.5-lightning:free` reached OpenRouter successfully but produced long reasoning text. Both classification outputs hit the 128-token limit and scored zero. This verifies connectivity, not benchmark quality. Gemma is the next candidate; its output quality has not yet been verified in this project.
+The first live smoke run with `nvidia/nemotron-3.5-lightning:free` reached OpenRouter successfully but produced long reasoning text. Both classification outputs hit the 128-token limit and scored zero. A follow-up with `google/gemma-4-31b-it:free` returned HTTP 429 for both cases, so its output quality has not yet been measured. Check [OpenRouter activity](https://openrouter.ai/activity) and your account's free-model limits before retrying; a 429 can reflect account or provider capacity, and the case files do not identify which. The harness now makes no automatic OpenRouter retries and stops queued cases on a 429.
 
 ### Git Bash on Windows
 
@@ -43,7 +43,7 @@ export OPENROUTER_API_KEY
 
 Use a dedicated API key with a **monthly limit** below the part of the $5 budget still available, and switch off auto recharge. The management API supports monthly key limits; check the dashboard's current controls when creating your key. Start with two cases and check actual usage before increasing case count. OpenRouter's Standard plan lists a 5.5% platform fee. Recheck exact model prices and available balance before a full benchmark.
 
-For two-model comparison, supply two exact model slugs in one run, for example `openrouter:openai/MODEL_SLUG` and `openrouter:anthropic/MODEL_SLUG`. A `--max-cases 2` run with two models can make up to four model requests, plus any retries. The adapter currently allows up to two retries per failed request, so leave headroom. The runner itself does not enforce a dollar cap; the provider account/key limit is essential for paid use.
+For two-model comparison, supply two exact model slugs in one run, for example `openrouter:openai/MODEL_SLUG` and `openrouter:anthropic/MODEL_SLUG`. A `--max-cases 2` run with two models can make up to four model requests. The OpenRouter adapter has no automatic retries, and HTTP 429 stops further queued cases. The runner itself does not enforce a dollar cap; the provider account/key limit is essential for paid use.
 
 ChatGPT and Claude chat subscriptions are billed separately from their API products. They cannot be entered as an API key or used to pay OpenRouter API charges.
 
