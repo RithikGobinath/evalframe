@@ -13,12 +13,12 @@
    $env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
    ```
 
-5. Copy the **exact slug** of a free model and run two cases first. Replace `YOUR_FREE_MODEL_SLUG` below. The `--no-mlflow` flag is unnecessary: local MLflow works without a hosted service.
+5. Check that the [Nemotron 3.5 Lightning endpoint](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free) still shows **Free**, then run two cases first. The `--no-mlflow` flag is unnecessary: local MLflow works without a hosted service.
 
    ```powershell
    evalframe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
    evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-     --model openrouter:YOUR_FREE_MODEL_SLUG --max-cases 2 `
+     --model openrouter:nvidia/nemotron-3.5-lightning:free --max-cases 2 `
      --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
    ```
 

@@ -40,11 +40,11 @@ $routerSecret = Read-Host "OpenRouter API key" -AsSecureString
 $env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
 ```
 
-Run a small diagnostic after selecting a current free model slug from [OpenRouter's free model collection](https://openrouter.ai/collections/free-models/):
+Run a small diagnostic using the currently free [Nemotron 3.5 Lightning endpoint](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free). Check that the model still shows **Free** before running, since availability and pricing can change:
 
 ```powershell
 evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-  --model openrouter:YOUR_FREE_MODEL_SLUG --max-cases 2 `
+  --model openrouter:nvidia/nemotron-3.5-lightning:free --max-cases 2 `
   --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
 ```
 
