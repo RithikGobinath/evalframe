@@ -1,0 +1,77 @@
+"""EvalFrame command line interface."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import os
+from collections import Counter
+from pathlib import Path
+
+from .cases import load_cases
+from .prompts import load_prompts
+from .runner import parse_model_spec, run_evaluation
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="evalframe", description="Cross-provider LLM evaluations")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    validate = subparsers.add_parser("validate", help="Validate dataset and prompt versions")
+    validate.add_argument("--dataset", type=Path, required=True)
+    validate.add_argument("--prompt", type=Path, required=True)
+
+    run = subparsers.add_parser("run", help="Run one or more models on the same cases")
+    run.add_argument("--dataset", type=Path, required=True)
+    run.add_argument("--prompt", type=Path, required=True)
+    run.add_argument("--model", action="append", required=True, help="openai:MODEL_ID or anthropic:MODEL_ID")
+    run.add_argument("--output-root", type=Path, default=Path("runs"))
+    run.add_argument("--run-id")
+    run.add_argument("--max-cases", type=int)
+    run.add_argument("--concurrency", type=int, default=5)
+    run.add_argument("--max-output-tokens", type=int, default=512)
+    run.add_argument("--tracking-uri", default=os.getenv("MLFLOW_TRACKING_URI"))
+    run.add_argument("--no-mlflow", action="store_true", help="Local diagnostic runs only")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        if args.command == "validate":
+            cases, dataset_hash = load_cases(args.dataset)
+            prompts = load_prompts(args.prompt)
+            print(json.dumps({
+                "cases": len(cases),
+                "task_counts": Counter(case.task_type for case in cases),
+                "dataset_sha256": dataset_hash,
+                "prompt_version": prompts.version,
+                "prompt_sha256": prompts.digest,
+            }, indent=2))
+            return 0
+        for spec in args.model:
+            provider, _ = parse_model_spec(spec)
+            key = "OPENAI_API_KEY" if provider == "openai" else "ANTHROPIC_API_KEY"
+            if not os.getenv(key):
+                raise ValueError(f"{key} is required for {provider} runs")
+        run_dir, summaries = asyncio.run(run_evaluation(
+            dataset=args.dataset,
+            prompt_file=args.prompt,
+            model_specs=args.model,
+            output_root=args.output_root,
+            run_id=args.run_id,
+            max_cases=args.max_cases,
+            concurrency=args.concurrency,
+            max_output_tokens=args.max_output_tokens,
+            tracking_uri=args.tracking_uri,
+            log_mlflow=not args.no_mlflow,
+        ))
+        print(json.dumps({"run_dir": str(run_dir), "models": summaries}, indent=2))
+        return 0
+    except (OSError, ValueError) as exc:
+        build_parser().error(str(exc))
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

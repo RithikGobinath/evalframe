@@ -1,0 +1,16 @@
+version = "baseline-v1"
+
+[tasks.classification]
+system = "Classify the user's text. Reply with exactly one category name and nothing else."
+
+[tasks.extraction]
+system = "Extract the requested fields from the user's text. Reply with only a valid JSON object. Use only fields requested by the user."
+
+[tasks.qa]
+system = "Answer the question using only the supplied context. Reply with a concise answer and nothing else."
+
+[tasks.summarization]
+system = "Summarize the supplied facts accurately in one or two sentences. Do not add unsupported claims."
+
+[tasks.instruction_following]
+system = "Follow the user's output instructions exactly. Reply with only the requested output."

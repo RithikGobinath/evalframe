@@ -1,0 +1,20 @@
+{"case_id":"cls-001","task_type":"classification","input":"Categories: billing, technical, account. Ticket: I was charged twice for my subscription.","expected":"billing","tags":["easy"]}
+{"case_id":"cls-002","task_type":"classification","input":"Categories: billing, technical, account. Ticket: The app crashes every time I upload a photo.","expected":"technical","tags":["easy"]}
+{"case_id":"cls-003","task_type":"classification","input":"Categories: billing, technical, account. Ticket: I need to change the email address on my profile.","expected":"account","tags":["easy"]}
+{"case_id":"cls-004","task_type":"classification","input":"Categories: billing, technical, account. Ticket: My refund has not appeared on my card.","expected":"billing","tags":["easy"]}
+{"case_id":"ext-001","task_type":"extraction","input":"Return JSON with keys name and city. Text: Mara lives in Denver.","expected":{"name":"Mara","city":"Denver"},"tags":["easy"]}
+{"case_id":"ext-002","task_type":"extraction","input":"Return JSON with keys order_id and total. Text: Order A-104 was $27.50.","expected":{"order_id":"A-104","total":"$27.50"},"tags":["easy"]}
+{"case_id":"ext-003","task_type":"extraction","input":"Return JSON with keys product and quantity. Text: The customer bought 3 notebooks.","expected":{"product":"notebooks","quantity":3},"tags":["easy"]}
+{"case_id":"ext-004","task_type":"extraction","input":"Return JSON with keys date and location. Text: The meeting is on 2026-10-04 in Austin.","expected":{"date":"2026-10-04","location":"Austin"},"tags":["easy"]}
+{"case_id":"qa-001","task_type":"qa","input":"Context: The museum is closed on Mondays. Question: Which day is the museum closed?","expected":"Mondays","tags":["easy"]}
+{"case_id":"qa-002","task_type":"qa","input":"Context: The package weighs 2 kilograms. Question: How much does the package weigh?","expected":"2 kilograms","tags":["easy"]}
+{"case_id":"qa-003","task_type":"qa","input":"Context: Dana joined the company in 2021. Question: In what year did Dana join?","expected":"2021","tags":["easy"]}
+{"case_id":"qa-004","task_type":"qa","input":"Context: The north entrance opens at 8 AM. Question: When does the north entrance open?","expected":"8 AM","tags":["easy"]}
+{"case_id":"sum-001","task_type":"summarization","input":"Facts: Revenue rose 12%. Operating costs fell 4%. Summarize without speculation.","expected":{"required_phrases":["revenue rose 12%","costs fell 4%"],"forbidden_phrases":["profit doubled"]},"tags":["phrase-proxy"]}
+{"case_id":"sum-002","task_type":"summarization","input":"Facts: The train leaves at 9 AM. It arrives at noon. Summarize without speculation.","expected":{"required_phrases":["9 AM","noon"],"forbidden_phrases":["delayed"]},"tags":["phrase-proxy"]}
+{"case_id":"sum-003","task_type":"summarization","input":"Facts: The team shipped a beta in April. General availability is planned for June. Summarize without speculation.","expected":{"required_phrases":["beta","April","June"],"forbidden_phrases":["launched in June"]},"tags":["phrase-proxy"]}
+{"case_id":"sum-004","task_type":"summarization","input":"Facts: The survey had 200 responses. 60% preferred option A. Summarize without speculation.","expected":{"required_phrases":["200","60%","option A"],"forbidden_phrases":["unanimous"]},"tags":["phrase-proxy"]}
+{"case_id":"ins-001","task_type":"instruction_following","input":"Reply with the word READY and no other words.","expected":{"contains_all":["READY"],"max_words":1},"tags":["easy"]}
+{"case_id":"ins-002","task_type":"instruction_following","input":"Reply with a JSON object containing a greeting. No markdown.","expected":{"valid_json":true},"tags":["easy"]}
+{"case_id":"ins-003","task_type":"instruction_following","input":"In 5 words or fewer, include the word blue. Do not use red.","expected":{"contains_all":["blue"],"contains_none":["red"],"max_words":5},"tags":["easy"]}
+{"case_id":"ins-004","task_type":"instruction_following","input":"Reply with exactly the phrase task complete.","expected":{"contains_all":["task complete"],"max_words":2},"tags":["easy"]}
