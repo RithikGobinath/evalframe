@@ -40,6 +40,17 @@ $routerSecret = Read-Host "OpenRouter API key" -AsSecureString
 $env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
 ```
 
+In **Git Bash**, use the Bash prompt and run the executable inside the existing virtual environment directly; no activation is needed:
+
+```bash
+read -r -s -p "OpenRouter API key: " OPENROUTER_API_KEY; echo
+export OPENROUTER_API_KEY
+./.venv/Scripts/evalframe.exe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
+./.venv/Scripts/evalframe.exe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml \
+  --model openrouter:nvidia/nemotron-3.5-lightning:free \
+  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+```
+
 Run a small diagnostic using the currently free [Nemotron 3.5 Lightning endpoint](https://openrouter.ai/nvidia/nemotron-3.5-lightning:free). Check that the model still shows **Free** before running, since availability and pricing can change:
 
 ```powershell

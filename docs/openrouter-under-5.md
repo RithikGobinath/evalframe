@@ -24,6 +24,19 @@
 
 6. Inspect `runs/smoke-openrouter/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The full 500-case benchmark dataset and durable Cloud Run workflow still need to be built.
 
+### Git Bash on Windows
+
+If your prompt says `MINGW64`, use these commands from the repository folder. The virtual environment's executable can run directly, so activation is unnecessary. The `read` command hides the key as you type it; do not paste the key into the command itself.
+
+```bash
+read -r -s -p "OpenRouter API key: " OPENROUTER_API_KEY; echo
+export OPENROUTER_API_KEY
+./.venv/Scripts/evalframe.exe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
+./.venv/Scripts/evalframe.exe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml \
+  --model openrouter:nvidia/nemotron-3.5-lightning:free \
+  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+```
+
 ## If you already have paid OpenRouter credits
 
 Use a dedicated API key with a **monthly limit** below the part of the $5 budget still available, and switch off auto recharge. The management API supports monthly key limits; check the dashboard's current controls when creating your key. Start with two cases and check actual usage before increasing case count. OpenRouter's Standard plan lists a 5.5% platform fee. Recheck exact model prices and available balance before a full benchmark.
