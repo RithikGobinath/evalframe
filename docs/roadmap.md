@@ -12,6 +12,7 @@
 ## Milestone 2: Credible 500-case benchmark
 
 - [ ] Agree on a real use case and success criteria for each task.
+- [x] Select candidate public sources for all five task types; see [benchmark sources](benchmark-sources.md).
 - [ ] Build 100 reviewed cases per task, including edge and adversarial cases.
 - [ ] Hold out benchmark cases from prompt tuning.
 - [ ] Add a human-labeled sample and calibrate any judge-based scoring against it.

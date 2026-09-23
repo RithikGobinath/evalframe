@@ -13,6 +13,8 @@ EvalFrame runs a versioned JSONL dataset against OpenAI and Claude models, appli
 
 The pilot's summarization score checks required and forbidden phrases. It is a **phrase-coverage proxy**, not a general measure of summary quality. The pilot examples are synthetic and intentionally easy; they must be replaced or supplemented with representative, reviewed cases before model claims are made.
 
+For the full 500-case run, the selected candidate sources are [Databricks Dolly 15k and Google IFEval](docs/benchmark-sources.md). Source-specific scoring and case review are the next dataset milestone.
+
 `docs/ci-workflow.yml` is the GitHub Actions template. It can be moved to `.github/workflows/ci.yml` after the GitHub authorization used for pushing has `workflow` permission.
 
 ## Local setup
@@ -27,7 +29,18 @@ evalframe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
 pytest
 ```
 
-Set `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in your environment. Do not commit keys or paste them into issues. A small live diagnostic run is:
+Set `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in your environment. Do not commit keys or paste them into issues.
+
+Create an OpenAI API key in the [OpenAI API dashboard](https://platform.openai.com/api-keys) and a Claude key in [Claude Console → Settings → API keys](https://console.anthropic.com/). In PowerShell, the following prompts mask what you type and set the keys for the current terminal session:
+
+```powershell
+$openaiSecret = Read-Host "OpenAI API key" -AsSecureString
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $openaiSecret).Password
+$claudeSecret = Read-Host "Claude API key" -AsSecureString
+$env:ANTHROPIC_API_KEY = [System.Net.NetworkCredential]::new("", $claudeSecret).Password
+```
+
+Then a small live diagnostic run is:
 
 ```powershell
 evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
