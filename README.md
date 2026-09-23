@@ -1,6 +1,6 @@
 # EvalFrame
 
-EvalFrame runs a versioned JSONL dataset against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. This repository currently contains a **20-case pilot**. The planned 500-case benchmark and Cloud Run deployment are not yet complete.
+EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot** and a **500-case synthetic throughput dataset**. A curated public-source benchmark and Cloud Run deployment are not yet complete.
 
 ## What works now
 
@@ -12,6 +12,8 @@ EvalFrame runs a versioned JSONL dataset against OpenAI and Claude models, direc
 - A Docker image suitable for a Cloud Run Job.
 
 The pilot's summarization score checks required and forbidden phrases. It is a **phrase-coverage proxy**, not a general measure of summary quality. The pilot examples are synthetic and intentionally easy; they must be replaced or supplemented with representative, reviewed cases before model claims are made.
+
+The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, current cost estimate, $4 monthly OpenRouter key cap, and local paid-run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. **No 500-case paid API run has occurred yet.**
 
 For the full 500-case run, the selected candidate sources are [Databricks Dolly 15k and Google IFEval](docs/benchmark-sources.md). Source-specific scoring and case review are the next dataset milestone.
 

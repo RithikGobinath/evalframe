@@ -11,6 +11,7 @@
 
 ## Milestone 2: Credible 500-case benchmark
 
+- [x] Build a 500-case synthetic throughput dataset with 100 cases per task and an offline harness check; see [500-case run](500-case-run.md). This is separate from the curated benchmark below.
 - [ ] Agree on a real use case and success criteria for each task.
 - [x] Select candidate public sources for all five task types; see [benchmark sources](benchmark-sources.md).
 - [ ] Build 100 reviewed cases per task, including edge and adversarial cases.
@@ -31,5 +32,7 @@
 - [ ] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
 - [ ] Run a 20-case cloud smoke test, then a 500-case benchmark.
 - [ ] Set provider request limits and a run-level spending limit before the full run.
+
+The dedicated OpenRouter EvalFrame key now has a $4 monthly credit cap. The full local 500-case run remains pending a successful two-model paid smoke test and a key made available to the local runner.
 
 **Acceptance:** a fresh Cloud Run Job execution produces a durable MLflow comparison and downloadable case-level report; interrupted execution can resume without losing completed results. No live run starts unless its projected spend fits within the remaining monthly budget.
