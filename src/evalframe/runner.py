@@ -21,8 +21,8 @@ from .scoring import score_case
 
 def parse_model_spec(spec: str) -> tuple[str, str]:
     provider, separator, model = spec.partition(":")
-    if not separator or provider not in {"openai", "anthropic"} or not model.strip():
-        raise ValueError(f"Invalid model {spec!r}; use openai:MODEL_ID or anthropic:MODEL_ID")
+    if not separator or provider not in {"openai", "anthropic", "openrouter"} or not model.strip():
+        raise ValueError(f"Invalid model {spec!r}; use openai:MODEL_ID, anthropic:MODEL_ID, or openrouter:MODEL_ID")
     return provider, model
 
 

@@ -1,11 +1,11 @@
 # EvalFrame
 
-EvalFrame runs a versioned JSONL dataset against OpenAI and Claude models, applies transparent task-specific scorers, and records each comparison in MLflow. This repository currently contains a **20-case pilot**. The planned 500-case benchmark and Cloud Run deployment are not yet complete.
+EvalFrame runs a versioned JSONL dataset against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. This repository currently contains a **20-case pilot**. The planned 500-case benchmark and Cloud Run deployment are not yet complete.
 
 ## What works now
 
 - Five task types: classification, structured extraction, grounded question answering, summarization, and instruction following.
-- Async OpenAI Responses API and Anthropic Messages API adapters.
+- Async OpenAI Responses API, Anthropic Messages API, and OpenRouter Chat Completions adapters.
 - Case-level results, token usage, latency, errors, and resumable local checkpoints.
 - MLflow parent comparison run with one child run per model.
 - Dataset and prompt hashes to guard against accidentally resuming with changed inputs.
@@ -29,7 +29,28 @@ evalframe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
 pytest
 ```
 
-Set `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in your environment. Do not commit keys or paste them into issues.
+Set `OPENROUTER_API_KEY` for OpenRouter, or the native `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` for direct calls. Do not commit keys or paste them into issues.
+
+For one key that can route to both model families, create a key in the [OpenRouter key dashboard](https://openrouter.ai/settings/keys). For a strict total spend below $5, use free model IDs and do not purchase credits yet. Paid model access may require OpenRouter's minimum $5 credit purchase. If you already have credits and choose to run paid models, turn off auto recharge and give this key a monthly spending limit below your remaining budget. See [the OpenRouter setup guide](docs/openrouter-under-5.md).
+
+In PowerShell, enter the key into a masked prompt for the current terminal session:
+
+```powershell
+$routerSecret = Read-Host "OpenRouter API key" -AsSecureString
+$env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
+```
+
+Run a small diagnostic after selecting a current free model slug from [OpenRouter's free model collection](https://openrouter.ai/collections/free-models/):
+
+```powershell
+evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
+  --model openrouter:YOUR_FREE_MODEL_SLUG --max-cases 2 `
+  --max-output-tokens 128 --concurrency 1 --run-id smoke-openrouter
+```
+
+To compare Claude and GPT with an existing paid credit balance, use exact model IDs from the OpenRouter catalog and repeat `--model`, keeping `--max-cases 2` for the first test. A ChatGPT or Claude chat subscription does not fund these API calls.
+
+### Direct provider keys
 
 Create an OpenAI API key in the [OpenAI API dashboard](https://platform.openai.com/api-keys) and a Claude key in [Claude Console → Settings → API keys](https://console.anthropic.com/). In PowerShell, the following prompts mask what you type and set the keys for the current terminal session:
 

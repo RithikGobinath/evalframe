@@ -2,7 +2,7 @@
 
 The project `evalframe-rithik-2026` has been created in Google Cloud. **Billing is not linked**, and no Cloud Run job, Cloud SQL instance, storage bucket, model API call, or other paid resource has been created for this project.
 
-The requested operating limit is $5 per month. Treat it as a combined limit across Google Cloud, OpenAI API, and Claude API unless the owner specifies otherwise. Do not run live evaluations or link Google Cloud billing until spending controls are configured and checked.
+The requested operating limit is $5 per month. Treat it as a combined limit across Google Cloud and model APIs, including OpenRouter, unless the owner specifies otherwise. Keep Google Cloud billing unlinked. Free OpenRouter models may be used locally within their rate limits; paid models need an explicit check of credits and limits before use.
 
 ## Spending controls before live runs
 
@@ -10,6 +10,8 @@ The requested operating limit is $5 per month. Treat it as a combined limit acro
 2. In Claude Console → Settings → Billing, set a monthly spend limit below the desired Claude allocation. Use a dedicated workspace and workspace limit if available for this account.
 3. In Google Cloud Billing, check whether the Preview **spend cap budget** is available for this project and Cloud Run. Its cap is per eligible service, not across all Google Cloud charges, and ongoing storage can continue accruing charges. An alerts-only budget is not a cap.
 4. Run only a two-case API smoke test first. Record observed token use and billed cost before sizing a 500-case run. Choose models based on a current price check, and do not start the full benchmark if its projected maximum would breach the remaining monthly budget.
+
+For OpenRouter specifically, use a dedicated key with a monthly limit below the remaining budget, disable auto recharge, and check the model's current price. Its free plan has API access and free models, but no budget controls. OpenRouter's terms state a $5 minimum credit purchase. With a strict **under $5 total cash outlay**, stay on free models unless credits already exist; a new paid top-up does not meet that strict ceiling. See [OpenRouter setup](openrouter-under-5.md).
 
 An exact $5 ceiling across all three vendors cannot be guaranteed by Google Cloud budget alerts or by this application alone. With a strict no-overage requirement, keep Google Cloud billing unlinked and perform only local/offline validation until the owner accepts the available controls.
 
@@ -25,3 +27,5 @@ Once billing and spend controls are in place, configure Secret Manager, a dedica
 - [Claude API spend limits](https://platform.claude.com/docs/en/api/rate-limits)
 - [Google Cloud spend cap budgets and limitations](https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps)
 - [Google Cloud Storage pricing and free tier](https://cloud.google.com/storage/pricing)
+- [OpenRouter pricing and free plan](https://openrouter.ai/pricing)
+- [OpenRouter credit purchase terms](https://openrouter.ai/terms)

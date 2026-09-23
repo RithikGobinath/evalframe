@@ -49,6 +49,40 @@ class OpenAIProvider:
         await self.client.close()
 
 
+class OpenRouterProvider:
+    def __init__(self) -> None:
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY is required for an OpenRouter run")
+        from openai import AsyncOpenAI
+
+        self.client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
+            timeout=90.0,
+            max_retries=2,
+        )
+
+    async def generate(self, model: str, system: str, user: str, max_output_tokens: int) -> ProviderResponse:
+        completion = await self.client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            max_tokens=max_output_tokens,
+        )
+        choice = completion.choices[0]
+        usage = completion.usage
+        return ProviderResponse(
+            text=choice.message.content or "",
+            input_tokens=getattr(usage, "prompt_tokens", None),
+            output_tokens=getattr(usage, "completion_tokens", None),
+            request_id=getattr(completion, "_request_id", None) or completion.id,
+            finish_reason=choice.finish_reason,
+        )
+
+    async def close(self) -> None:
+        await self.client.close()
+
+
 class AnthropicProvider:
     def __init__(self) -> None:
         if not os.getenv("ANTHROPIC_API_KEY"):
@@ -81,4 +115,6 @@ def create_provider(name: str) -> Provider:
         return OpenAIProvider()
     if name == "anthropic":
         return AnthropicProvider()
+    if name == "openrouter":
+        return OpenRouterProvider()
     raise ValueError(f"Unsupported provider: {name}")

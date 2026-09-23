@@ -24,7 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     run = subparsers.add_parser("run", help="Run one or more models on the same cases")
     run.add_argument("--dataset", type=Path, required=True)
     run.add_argument("--prompt", type=Path, required=True)
-    run.add_argument("--model", action="append", required=True, help="openai:MODEL_ID or anthropic:MODEL_ID")
+    run.add_argument("--model", action="append", required=True, help="openai:MODEL_ID, anthropic:MODEL_ID, or openrouter:MODEL_ID")
     run.add_argument("--output-root", type=Path, default=Path("runs"))
     run.add_argument("--run-id")
     run.add_argument("--max-cases", type=int)
@@ -51,7 +51,11 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         for spec in args.model:
             provider, _ = parse_model_spec(spec)
-            key = "OPENAI_API_KEY" if provider == "openai" else "ANTHROPIC_API_KEY"
+            key = {
+                "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+                "openrouter": "OPENROUTER_API_KEY",
+            }[provider]
             if not os.getenv(key):
                 raise ValueError(f"{key} is required for {provider} runs")
         run_dir, summaries = asyncio.run(run_evaluation(
