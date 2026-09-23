@@ -23,11 +23,13 @@
 
 ## Milestone 3: Cloud Run
 
-- [ ] Configure a Google Cloud project, billing, Artifact Registry, Cloud Storage, and Secret Manager.
-- [ ] Deploy an authenticated remote MLflow service backed by Cloud SQL PostgreSQL and Cloud Storage.
+- [x] Create the Google Cloud project `evalframe-rithik-2026` without linking billing.
+- [ ] Configure provider hard spend limits and a Google Cloud budget strategy within the owner's $5/month limit.
+- [ ] Configure Artifact Registry, Cloud Storage, and Secret Manager only after billing controls are checked.
+- [ ] Export per-run MLflow SQLite tracking and artifacts to Cloud Storage; defer a permanent MLflow/Cloud SQL service.
 - [ ] Add Cloud Storage checkpoints and resume behavior for job retries.
 - [ ] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
 - [ ] Run a 20-case cloud smoke test, then a 500-case benchmark.
 - [ ] Set provider request limits and a run-level spending limit before the full run.
 
-**Acceptance:** a fresh Cloud Run Job execution produces a durable MLflow comparison and downloadable case-level report; interrupted execution can resume without losing completed results.
+**Acceptance:** a fresh Cloud Run Job execution produces a durable MLflow comparison and downloadable case-level report; interrupted execution can resume without losing completed results. No live run starts unless its projected spend fits within the remaining monthly budget.

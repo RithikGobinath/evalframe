@@ -40,7 +40,7 @@ $claudeSecret = Read-Host "Claude API key" -AsSecureString
 $env:ANTHROPIC_API_KEY = [System.Net.NetworkCredential]::new("", $claudeSecret).Password
 ```
 
-Then a small live diagnostic run is:
+Set provider hard spend limits before any paid call; see [budget and cloud status](docs/budget-and-cloud.md). Then a small live diagnostic run is:
 
 ```powershell
 evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
@@ -80,7 +80,7 @@ For extraction, `expected` is a JSON object. For summarization, it contains `req
 
 ## Deployment path
 
-The evaluator image's entrypoint is `evalframe`. Build it and deploy it as a **Cloud Run Job** with a single task initially. Pass the `run` command arguments to the job. Store provider API keys in Secret Manager and supply them to the job's service account. Use a remote MLflow server with a persistent PostgreSQL backend and Cloud Storage artifact store. Local `runs/` checkpoints are ephemeral on Cloud Run; durable Cloud Storage checkpoints must be added before relying on automatic job retries. See [the project roadmap](docs/roadmap.md).
+The evaluator image's entrypoint is `evalframe`. The Google Cloud project `evalframe-rithik-2026` exists with billing disabled. Under the $5/month constraint, deployment will use a finite **Cloud Run Job** and export its MLflow tracking data to Cloud Storage; a permanent MLflow/Cloud SQL service is deferred. Local `runs/` checkpoints are ephemeral on Cloud Run; durable Cloud Storage checkpoints and export must be added before deployment. See [the budget and cloud status](docs/budget-and-cloud.md) and [project roadmap](docs/roadmap.md).
 
 ## Security notes
 
