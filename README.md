@@ -114,7 +114,7 @@ For extraction, `expected` is a JSON object. For summarization, it contains `req
 
 ## Deployment path
 
-The evaluator image's entrypoint is `evalframe`. The Google Cloud project `evalframe-rithik-2026` exists with billing disabled. Under the $5/month constraint, deployment will use a finite **Cloud Run Job** and export its MLflow tracking data to Cloud Storage; a permanent MLflow/Cloud SQL service is deferred. Local `runs/` checkpoints are ephemeral on Cloud Run; durable Cloud Storage checkpoints and export must be added before deployment. See [the budget and cloud status](docs/budget-and-cloud.md) and [project roadmap](docs/roadmap.md).
+The evaluator image's entrypoint is `evalframe`. The Google Cloud project `evalframe-rithik-2026` exists with billing disabled. Under the $5/month constraint, deployment will use a finite **Cloud Run Job** and export its MLflow tracking data to Cloud Storage; a permanent MLflow/Cloud SQL service is deferred. The `--gcs-bucket` option now saves each completed case to Cloud Storage for job retries and exports the final results and MLflow files. The job has not been deployed because billing is disabled. See the [Cloud Run plan](docs/cloud-run.md), [budget status](docs/budget-and-cloud.md), and [project roadmap](docs/roadmap.md).
 
 ## Security notes
 

@@ -26,10 +26,10 @@
 ## Milestone 3: Cloud Run
 
 - [x] Create the Google Cloud project `evalframe-rithik-2026` without linking billing.
+- [x] Create a dedicated, unprivileged `evalframe-job` service account.
 - [ ] Configure provider hard spend limits and a Google Cloud budget strategy within the owner's $5/month limit.
+- [x] Add per-case Cloud Storage checkpoints, restore, and result/MLflow export in the application.
 - [ ] Configure Artifact Registry, Cloud Storage, and Secret Manager only after billing controls are checked.
-- [ ] Export per-run MLflow SQLite tracking and artifacts to Cloud Storage; defer a permanent MLflow/Cloud SQL service.
-- [ ] Add Cloud Storage checkpoints and resume behavior for job retries.
 - [ ] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
 - [ ] Run a 20-case cloud smoke test, then a 500-case benchmark.
 - [ ] Set provider request limits and a run-level spending limit before the full run.

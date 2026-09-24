@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
+cloud = ["google-cloud-storage>=3,<4"]
 
 [project.scripts]
 evalframe = "evalframe.cli:main"

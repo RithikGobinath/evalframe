@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 import statistics
 import time
@@ -11,12 +12,24 @@ import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Protocol
 
 from .cases import EvalCase, load_cases
 from .prompts import load_prompts
 from .providers import Provider, create_provider
 from .scoring import score_case
+
+
+class RunStore(Protocol):
+    """Optional durable store for a single-task cloud execution."""
+
+    def prepare(self, run_dir: Path, manifest: dict) -> None: ...
+
+    def restore_checkpoint(self, checkpoint: Path, spec: str) -> None: ...
+
+    def save_row(self, spec: str, row: dict) -> None: ...
+
+    def export(self, run_dir: Path, tracking_db: Path | None, artifact_root: Path | None) -> None: ...
 
 
 def parse_model_spec(spec: str) -> tuple[str, str]:
@@ -128,6 +141,7 @@ async def _run_model(
     concurrency: int,
     max_output_tokens: int,
     provider_factory: Callable[[str], Provider],
+    run_store: RunStore | None = None,
 ) -> list[dict]:
     provider_name, model = parse_model_spec(spec)
     existing = _read_checkpoint(checkpoint)
@@ -154,14 +168,24 @@ async def _run_model(
                 )
                 for case in pending
             ]
-            with checkpoint.open("a", encoding="utf-8") as stream:
-                for task in asyncio.as_completed(tasks):
-                    row = await task
-                    if row is None or row.get("status_code") == 429:
-                        continue
-                    stream.write(json.dumps(row, ensure_ascii=False) + "\n")
-                    stream.flush()
-                    existing[row["case_id"]] = row
+            try:
+                with checkpoint.open("a", encoding="utf-8") as stream:
+                    for task in asyncio.as_completed(tasks):
+                        row = await task
+                        if row is None or row.get("status_code") == 429:
+                            continue
+                        if run_store is not None:
+                            # Persist before recording locally: a restarted job must
+                            # see every case reported as completed.
+                            await asyncio.to_thread(run_store.save_row, spec, row)
+                        stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+                        stream.flush()
+                        existing[row["case_id"]] = row
+            except BaseException:
+                for task in tasks:
+                    task.cancel()
+                await asyncio.gather(*tasks, return_exceptions=True)
+                raise
             if rate_limited.is_set():
                 raise ValueError(
                     f"{spec} returned HTTP 429 (rate limited). Pending cases were not called; "
@@ -184,6 +208,7 @@ async def run_evaluation(
     tracking_uri: str | None = None,
     log_mlflow: bool = True,
     provider_factory: Callable[[str], Provider] = create_provider,
+    run_store: RunStore | None = None,
 ) -> tuple[Path, dict[str, dict[str, float]]]:
     if not model_specs or len(set(model_specs)) != len(model_specs):
         raise ValueError("Provide one or more unique --model values")
@@ -210,6 +235,12 @@ async def run_evaluation(
         "case_ids": [case.case_id for case in cases],
         "max_output_tokens": max_output_tokens,
     }
+    if os.getenv("EVALFRAME_CODE_REVISION"):
+        manifest["code_revision"] = os.environ["EVALFRAME_CODE_REVISION"]
+    if os.getenv("EVALFRAME_IMAGE_DIGEST"):
+        manifest["image_digest"] = os.environ["EVALFRAME_IMAGE_DIGEST"]
+    if run_store is not None:
+        await asyncio.to_thread(run_store.prepare, run_dir, manifest)
     if manifest_path.exists():
         if json.loads(manifest_path.read_text(encoding="utf-8")) != manifest:
             raise ValueError(f"Run ID {run_id!r} already exists with different inputs")
@@ -222,8 +253,11 @@ async def run_evaluation(
         import hashlib
 
         path = run_dir / f"cases-{hashlib.sha256(spec.encode()).hexdigest()[:12]}.jsonl"
+        if run_store is not None:
+            await asyncio.to_thread(run_store.restore_checkpoint, path, spec)
         records = await _run_model(
-            cases, spec, prompts.systems, path, concurrency, max_output_tokens, provider_factory
+            cases, spec, prompts.systems, path, concurrency, max_output_tokens,
+            provider_factory, run_store,
         )
         summaries[spec] = summarize(records)
         result_paths[spec] = path
@@ -258,4 +292,8 @@ async def run_evaluation(
                     mlflow.log_metrics(summaries[spec])
                     mlflow.log_artifact(str(result_paths[spec]), artifact_path="cases")
             mlflow.log_artifact(str(run_dir / "summary.json"), artifact_path="reports")
+    if run_store is not None:
+        tracking_db = Path("mlflow.db") if log_mlflow and tracking_uri is None else None
+        artifact_root = Path("mlruns") if log_mlflow and tracking_uri is None else None
+        await asyncio.to_thread(run_store.export, run_dir, tracking_db, artifact_root)
     return run_dir, summaries

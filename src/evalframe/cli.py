@@ -32,6 +32,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--max-output-tokens", type=int, default=512)
     run.add_argument("--tracking-uri", default=os.getenv("MLFLOW_TRACKING_URI"))
     run.add_argument("--no-mlflow", action="store_true", help="Local diagnostic runs only")
+    run.add_argument("--gcs-bucket", help="Durable checkpoints and artifacts for a Cloud Run Job")
+    run.add_argument("--gcs-prefix", default="evalframe")
     return parser
 
 
@@ -58,6 +60,18 @@ def main(argv: list[str] | None = None) -> int:
             }[provider]
             if not os.getenv(key):
                 raise ValueError(f"{key} is required for {provider} runs")
+        run_store = None
+        if args.gcs_bucket:
+            from .cloud_store import GCSRunStore
+
+            if not args.run_id:
+                raise ValueError("--run-id is required with --gcs-bucket")
+            if args.no_mlflow or args.tracking_uri:
+                raise ValueError("Cloud runs require local MLflow with the default tracking URI")
+            for name in ("EVALFRAME_CODE_REVISION", "EVALFRAME_IMAGE_DIGEST"):
+                if not os.getenv(name):
+                    raise ValueError(f"{name} is required for cloud runs")
+            run_store = GCSRunStore(args.gcs_bucket, args.gcs_prefix)
         run_dir, summaries = asyncio.run(run_evaluation(
             dataset=args.dataset,
             prompt_file=args.prompt,
@@ -69,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
             max_output_tokens=args.max_output_tokens,
             tracking_uri=args.tracking_uri,
             log_mlflow=not args.no_mlflow,
+            run_store=run_store,
         ))
         print(json.dumps({"run_dir": str(run_dir), "models": summaries}, indent=2))
         return 0

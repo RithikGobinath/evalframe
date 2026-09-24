@@ -8,8 +8,8 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 COPY data ./data
 COPY prompts ./prompts
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[cloud]"
 
-RUN useradd --create-home appuser
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
 USER appuser
 ENTRYPOINT ["evalframe"]

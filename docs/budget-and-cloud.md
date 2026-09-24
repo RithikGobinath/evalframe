@@ -1,6 +1,6 @@
 # Budget and cloud status
 
-The project `evalframe-rithik-2026` has been created in Google Cloud. **Billing is not linked**, and no Cloud Run job, Cloud SQL instance, storage bucket, model API call, or other paid resource has been created for this project.
+The project `evalframe-rithik-2026` has been created in Google Cloud. **Billing is not linked**, and no Cloud Run job, Cloud SQL instance, storage bucket, model API call, or other paid resource has been created for this project. The unprivileged `evalframe-job` service account exists. On September 24, 2026, Google Cloud rejected enabling the Run, Build, Registry, and Secret Manager APIs because billing is disabled.
 
 The requested operating limit is $5 per month. Treat it as a combined limit across Google Cloud and model APIs, including OpenRouter, unless the owner specifies otherwise. Keep Google Cloud billing unlinked. Free OpenRouter models may be used locally within their rate limits; paid models need an explicit check of credits and limits before use.
 
@@ -9,7 +9,7 @@ The requested operating limit is $5 per month. Treat it as a combined limit acro
 1. In the OpenAI API project settings, set a monthly **hard spend limit**, with enforcement enabled. A spend alert alone does not stop requests. Leave headroom because OpenAI says enforcement is not instantaneous.
 2. In Claude Console → Settings → Billing, set a monthly spend limit below the desired Claude allocation. Use a dedicated workspace and workspace limit if available for this account.
 3. In Google Cloud Billing, check whether the Preview **spend cap budget** is available for this project and Cloud Run. Its cap is per eligible service, not across all Google Cloud charges, and ongoing storage can continue accruing charges. An alerts-only budget is not a cap.
-4. Run only a two-case API smoke test first. Record observed token use and billed cost before sizing a 500-case run. Choose models based on a current price check, and do not start the full benchmark if its projected maximum would breach the remaining monthly budget.
+4. Before a cloud benchmark, run a bounded 20-case-per-model cloud smoke test. The local 500-case-per-model benchmark already established model token use; recheck prices, key balance, and any new cloud charges before another full run.
 
 For OpenRouter specifically, use a dedicated key with a monthly limit below the remaining budget, disable auto recharge, and check the model's current price. Its free plan has API access and free models, but no budget controls. OpenRouter's terms state a $5 minimum credit purchase. With a strict **under $5 total cash outlay**, stay on free models unless credits already exist; a new paid top-up does not meet that strict ceiling. See [OpenRouter setup](openrouter-under-5.md).
 
@@ -17,9 +17,9 @@ An exact $5 ceiling across all three vendors cannot be guaranteed by Google Clou
 
 ## Cloud architecture under a small budget
 
-The earlier proposal to host a permanent MLflow service backed by Cloud SQL is deferred. It would introduce continuously running database costs. The lower-cost design is one Cloud Run Job per benchmark, with local MLflow SQLite tracking during the job and a final export of its database, artifacts, and case-level results to Cloud Storage. The job should have no minimum instances and should exit after processing. Cloud Storage checkpointing and export have not been implemented yet; do not deploy the current image for a production benchmark.
+The earlier proposal to host a permanent MLflow service backed by Cloud SQL is deferred. It would introduce continuously running database costs. The lower-cost design is one Cloud Run Job per benchmark, with local MLflow SQLite tracking during the job and a final export of its database, artifacts, and case-level results to Cloud Storage. The job should exit after processing.
 
-Once billing and spend controls are in place, configure Secret Manager, a dedicated service account, a small Cloud Storage bucket in an eligible US region, Artifact Registry, and a Cloud Run Job. Use one job task and conservative concurrency at first. Re-evaluate fixed costs and free-tier terms before creating any resource.
+Per-case Cloud Storage checkpointing and final export are now implemented in the application, but the container has not been built or run in Google Cloud. Once billing and spend controls are in place, configure Secret Manager, the existing dedicated service account's limited permissions, a small Cloud Storage bucket in an eligible US region, Artifact Registry, and a Cloud Run Job. Use one job task and conservative concurrency at first. Re-evaluate fixed costs and free-tier terms before creating any resource. See the [Cloud Run plan](cloud-run.md).
 
 ## Source documentation
 
