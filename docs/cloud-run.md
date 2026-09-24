@@ -2,6 +2,8 @@
 
 **Status (September 24, 2026):** The application is prepared for a one-task Cloud Run Job, but **nothing has been deployed**. Google Cloud project `evalframe-rithik-2026` has billing disabled. The unprivileged service account `evalframe-job@evalframe-rithik-2026.iam.gserviceaccount.com` was created. Google Cloud rejected activation of the Run, Build, Registry, and Secret Manager APIs because billing is disabled. No bucket, secret, image, or job exists. The owner's $5 monthly cash limit was already used for an OpenRouter credit purchase this month, so billing remains disabled until the owner approves a different spending arrangement. The machine preparing this project has no Docker executable; the deployment uses Cloud Build after billing is resolved.
 
+The owner allows a separate $5 Google Cloud limit only if it is a **hard limit**. Google Cloud's budget alerts do not stop charges, and its spend-cap budget applies to one eligible service, excludes the other services this job needs, and can overshoot. Therefore a paid billing account cannot satisfy this condition; do not link one under the current instruction. A verified Free Trial account is a possible zero-cash alternative, but its usage cap is $300 rather than $5 and it must be confirmed separately.
+
 ## Job design
 
 - Region: `us-central1`; one task, one vCPU, 1 GiB memory, no automatic task retries, and a finite task timeout.
