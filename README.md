@@ -13,7 +13,7 @@ EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, direct
 
 The pilot's summarization score checks required and forbidden phrases. It is a **phrase-coverage proxy**, not a general measure of summary quality. The pilot examples are synthetic and intentionally easy; they must be replaced or supplemented with representative, reviewed cases before model claims are made.
 
-The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, current cost estimate, $4 monthly OpenRouter key cap, and local paid-run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. **No 500-case paid API run has occurred yet.**
+The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, cost estimate, $4 monthly OpenRouter key cap, and local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
 
 For the full 500-case run, the selected candidate sources are [Databricks Dolly 15k and Google IFEval](docs/benchmark-sources.md). Source-specific scoring and case review are the next dataset milestone.
 

@@ -38,3 +38,5 @@ Reproduce the estimate without making an API call:
 ```
 
 The full comparison sends up to **1,000 model requests** and may take considerable time. The synthetic benchmark is separate from the planned curated public-source evaluation and from Cloud Run deployment. The run is not complete until `runs/benchmark500-v1/summary.json` reports 500 cases for each model and the case-level files have been reviewed.
+
+**Status:** The local run completed on September 23, 2026. Both models finished all 500 cases with zero API errors. The [published results](../results/benchmark500-v1/README.md) include the summary, manifest, and every case-level output.
