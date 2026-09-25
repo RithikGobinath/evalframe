@@ -29,7 +29,7 @@
 
 - [x] Create the Google Cloud project `evalframe-rithik-2026` and link billing for the deployment.
 - [x] Create a dedicated, unprivileged `evalframe-job` service account.
-- [x] Configure a dedicated OpenRouter key with a $4 monthly credit limit and a separate $5/month Google Cloud alert budget. The Google Cloud alert is not a hard cap.
+- [x] Configure a dedicated OpenRouter key and a separate $5/month Google Cloud alert budget. The Google Cloud alert is not a hard cap. The key's current limit differs from the earlier $4 monthly setting; see [budget status](budget-and-cloud.md).
 - [x] Add per-case Cloud Storage checkpoints, restore, and result/MLflow export in the application.
 - [x] Configure Artifact Registry, Cloud Storage, and Secret Manager after linking billing and creating the budget.
 - [x] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.

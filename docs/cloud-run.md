@@ -2,7 +2,7 @@
 
 **Status (September 24, 2026):** The `evalframe-benchmark` job is deployed in Google Cloud project `evalframe-rithik-2026`, region `us-central1`. The 20-case-per-model smoke execution `evalframe-benchmark-dgmcs` and the full 500-case-per-model execution `evalframe-benchmark-2pdxh` both completed successfully with zero request errors. See the [published cloud report](../results/cloud-benchmark500-v1/README.md).
 
-The project has a separate **$5 monthly Google Cloud budget alert**, with 50%, 80%, and 100% thresholds. It is not a hard spending cap. The dedicated OpenRouter key has a $4 monthly provider credit limit and auto top-up is off. See [budget details](budget-and-cloud.md).
+The project has a separate **$5 monthly Google Cloud budget alert**, with 50%, 80%, and 100% thresholds. It is not a hard spending cap. The OpenRouter key's current read-only API reports a $5 limit with no reset interval; this differs from the earlier $4 monthly setting. See [budget details](budget-and-cloud.md).
 
 ## Deployed configuration
 

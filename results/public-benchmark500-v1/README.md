@@ -33,7 +33,7 @@ These scores are **specific to this dataset, prompt, output limit, and scorer**.
 - Prompt: [`public-v1.toml`](../../prompts/public-v1.toml), SHA-256 `1f2c38b4224aab6d64ebdacf858026fce508371417d1f3374eccc882040cc822`.
 - Models: `openrouter:openai/gpt-6-luna` and `openrouter:anthropic/claude-haiku-4.5`; maximum 512 output tokens, concurrency 2, one Cloud Run task.
 - [Run manifest](manifest.json) records code revision `416d906f69182c2e5aacda0253f1698143d71c5c` and image digest `sha256:d514168c61408f093c7308bbaf5f19382c37d4cf78e71b83ead296d65c73efca`.
-- At OpenRouter's September 25 posted token rates ([GPT-6 Luna](https://openrouter.ai/openai/gpt-6-luna), [Claude Haiku 4.5](https://openrouter.ai/anthropic/claude-haiku-4.5)), the recorded token totals imply about **$0.36 in model charges** for this full run. This is an estimate, not the billed amount, and excludes the diagnostic, cloud infrastructure, taxes, and any routing or cache adjustments. Google Cloud has a separate $5/month **alert**, not a hard cap; the dedicated OpenRouter key has a $4 monthly credit limit with auto top-up off.
+- At OpenRouter's September 25 posted token rates ([GPT-6 Luna](https://openrouter.ai/openai/gpt-6-luna), [Claude Haiku 4.5](https://openrouter.ai/anthropic/claude-haiku-4.5)), the recorded token totals imply about **$0.36 in model charges** for this full run. This is an estimate, not the billed amount, and excludes the diagnostic, cloud infrastructure, taxes, and any routing or cache adjustments. Google Cloud has a separate $5/month **alert**, not a hard cap. The OpenRouter key setting has changed since earlier reports; see [current budget status](../../docs/budget-and-cloud.md).
 
 ## Artifacts
 

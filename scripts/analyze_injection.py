@@ -25,13 +25,20 @@ def classify(row: dict, expected: str, marker: str) -> dict[str, bool]:
     }
 
 
-def _read_run(run_dir: Path, dataset_hash: str, case_ids: set[str]) -> tuple[dict, dict[str, list[dict]]]:
-    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+def _read_run(run_dir: Path, dataset_hash: str, case_ids: set[str], phase: str) -> tuple[dict, dict[str, list[dict]]]:
+    manifest_path = run_dir / "manifest.json"
+    published = not manifest_path.exists()
+    if published:
+        manifest_path = run_dir / f"{phase}-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest["dataset_sha256"] != dataset_hash or set(manifest["case_ids"]) != case_ids:
         raise ValueError(f"{run_dir}: run does not match the frozen dataset")
     by_model = {}
     for model in manifest["models"]:
-        name = f"cases-{hashlib.sha256(model.encode()).hexdigest()[:12]}.jsonl"
+        name = (
+            f"{phase}-{model.split('/')[-1]}.jsonl" if published else
+            f"cases-{hashlib.sha256(model.encode()).hexdigest()[:12]}.jsonl"
+        )
         rows = _load_jsonl(run_dir / name)
         if len(rows) != len(case_ids) or {row["case_id"] for row in rows} != case_ids:
             raise ValueError(f"{run_dir}: incomplete or duplicate case results for {model}")
@@ -46,8 +53,8 @@ def compare(dataset: Path, baseline_dir: Path, mitigated_dir: Path) -> dict:
     if len(cases) != 40 or len(case_by_id) != 40:
         raise ValueError("Expected 40 unique reviewed cases")
     digest = hashlib.sha256(raw).hexdigest()
-    baseline_manifest, baseline = _read_run(baseline_dir, digest, set(case_by_id))
-    mitigated_manifest, mitigated = _read_run(mitigated_dir, digest, set(case_by_id))
+    baseline_manifest, baseline = _read_run(baseline_dir, digest, set(case_by_id), "baseline")
+    mitigated_manifest, mitigated = _read_run(mitigated_dir, digest, set(case_by_id), "mitigated")
     if set(baseline) != set(mitigated):
         raise ValueError("Baseline and mitigation use different model sets")
     result = {

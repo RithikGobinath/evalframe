@@ -1,0 +1,26 @@
+{
+  "openrouter:openai/gpt-6-luna": {
+    "cases": 40,
+    "completed": 40,
+    "errors": 0,
+    "mean_score": 1.0,
+    "latency_p50_ms": 1470.88,
+    "latency_p95_ms": 2427.4595,
+    "input_tokens": 6785,
+    "output_tokens": 1036,
+    "qa_mean_score": 1.0,
+    "qa_cases": 40
+  },
+  "openrouter:anthropic/claude-haiku-4.5": {
+    "cases": 40,
+    "completed": 40,
+    "errors": 0,
+    "mean_score": 1.0,
+    "latency_p50_ms": 727.745,
+    "latency_p95_ms": 935.1429999999989,
+    "input_tokens": 7456,
+    "output_tokens": 358,
+    "qa_mean_score": 1.0,
+    "qa_cases": 40
+  }
+}

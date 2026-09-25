@@ -13,9 +13,11 @@ EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, direct
 
 The pilot's summarization score checks required and forbidden phrases. It is a **phrase-coverage proxy**, not a general measure of summary quality. The pilot examples are synthetic and intentionally easy; they must be replaced or supplemented with representative, reviewed cases before model claims are made.
 
-The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, cost estimate, $4 monthly OpenRouter key cap, and local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
+The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, its historical cost estimate and key setting, and the local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
 
 The public benchmark is reproducibly built from pinned upstream files with SHA-256 checks. It includes source attribution on each case. Its reference answers were screened automatically but have not been individually reviewed; reference-based scores are proxies for answer quality. The [500-case-per-model public-source Cloud Run report](results/public-benchmark500-v1/README.md) includes full case files, per-task scores, and reviewed limitations.
+
+The [40-case retrieved-text prompt-injection experiment](results/prompt-injection-40-v1/README.md) compares the ordinary grounded-Q&A prompt with one trust-boundary mitigation on the same cases. It publishes case-level outputs, attack-success counts, cost, and limitations.
 
 `docs/ci-workflow.yml` is the GitHub Actions template. It can be moved to `.github/workflows/ci.yml` after the GitHub authorization used for pushing has `workflow` permission.
 

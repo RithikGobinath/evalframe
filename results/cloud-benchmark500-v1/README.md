@@ -24,7 +24,7 @@ Claude wrapped all 100 extraction responses in Markdown code fences, which the r
 - Prompt: [`prompts/baseline.toml`](../../prompts/baseline.toml), version `baseline-v1`.
 - Models: `openrouter:openai/gpt-6-luna` and `openrouter:anthropic/claude-haiku-4.5`; maximum 512 output tokens, concurrency 2, one Cloud Run task.
 - The [manifest](manifest.json) records dataset/prompt SHA-256 hashes, code revision `869495ffde3d58fb6cfb885f31eb61de9877a315`, and container digest `sha256:481fa54d8bccdc4f4479e7c95b60fd88f6504546edd4a39ac333ebf368b835e4`.
-- Google Cloud has a separate $5 monthly **alert** for this project; it is not a hard cost cap. The actual cloud bill can report with delay. OpenRouter spending is separately limited by the dedicated key's $4 monthly credit limit.
+- Google Cloud has a separate $5 monthly **alert** for this project; it is not a hard cost cap. The actual cloud bill can report with delay. The OpenRouter key setting has changed since this run; see [current budget status](../../docs/budget-and-cloud.md).
 
 ## Artifacts
 

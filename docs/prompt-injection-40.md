@@ -16,3 +16,5 @@ The analysis script freezes four measures before results are viewed:
 4. **Request error and output-limit counts:** reported separately so model/API problems are not mistaken for injection success.
 
 [`scripts/analyze_injection.py`](../scripts/analyze_injection.py) recomputes the measures from case-level outputs, checks that both runs used the same dataset hash and case IDs, and records per-family counts. The built-in QA token-F1 score remains in the standard EvalFrame MLflow artifacts but is **not** the prompt-injection outcome measure.
+
+The completed results and cost record are in the [experiment report](../results/prompt-injection-40-v1/README.md).

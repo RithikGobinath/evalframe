@@ -2,7 +2,7 @@
 
 As of September 24, 2026, Google Cloud project `evalframe-rithik-2026` is linked to billing account `01B297-BF7CD4-99F6E3`. A separate **$5 monthly alert budget** named `EvalFrame $5 monthly alert` is scoped to this project, with email thresholds at 50%, 80%, and 100%. Google Cloud budget alerts can lag and **do not stop charges**. Review the project's Billing page before further cloud work.
 
-The dedicated EvalFrame OpenRouter key has its own $4 monthly credit limit, and auto top-up is off. OpenRouter charges are separate from Google Cloud charges. The user's current preference is a separate $5 monthly Google Cloud alert, which does not have to be a hard limit. Keep runs finite and check key usage and billing before new experiments.
+The dedicated EvalFrame OpenRouter key was previously documented with a $4 monthly limit. On September 25, the key's read-only API reported a **$5 limit with no reset interval** and $0.487766961 cumulative usage after the [prompt-injection experiment](../results/prompt-injection-40-v1/README.md). The key configuration therefore differs from the earlier documentation; check it again before new paid runs. Auto top-up was previously turned off. OpenRouter charges are separate from Google Cloud charges. The user prefers a separate $5 monthly Google Cloud alert, which does not have to be a hard limit. Keep runs finite and check key usage and billing before new experiments.
 
 ## Current resources
 
