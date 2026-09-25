@@ -15,6 +15,7 @@
 - [x] Run and publish a live 500-case-per-model synthetic comparison; see [results](../results/benchmark500-v1/README.md).
 - [ ] Agree on a real use case and success criteria for each task.
 - [x] Select candidate public sources for all five task types; see [benchmark sources](benchmark-sources.md).
+- [x] Build 500 reproducible public-source cases with pinned source revisions and task-specific reference metrics; see [public benchmark](public-benchmark.md).
 - [ ] Build 100 reviewed cases per task, including edge and adversarial cases.
 - [ ] Hold out benchmark cases from prompt tuning.
 - [ ] Add a human-labeled sample and calibrate any judge-based scoring against it.

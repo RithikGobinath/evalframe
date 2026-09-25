@@ -29,9 +29,23 @@ def _validate_expected(task_type: str, expected: Any, location: str) -> None:
     elif task_type == "extraction":
         if not isinstance(expected, dict) or not expected:
             raise ValueError(f"{location}: expected must be a nonempty object")
+        if "reference_text" in expected and (
+            set(expected) != {"reference_text"}
+            or not isinstance(expected["reference_text"], str)
+            or not expected["reference_text"].strip()
+        ):
+            raise ValueError(f"{location}: reference_text must be the only field and nonempty")
     elif task_type == "summarization":
         if not isinstance(expected, dict):
             raise ValueError(f"{location}: expected must be an object")
+        if "reference_summary" in expected:
+            if (
+                set(expected) != {"reference_summary"}
+                or not isinstance(expected["reference_summary"], str)
+                or not expected["reference_summary"].strip()
+            ):
+                raise ValueError(f"{location}: reference_summary must be the only field and nonempty")
+            return
         required = expected.get("required_phrases")
         forbidden = expected.get("forbidden_phrases", [])
         if not isinstance(required, list) or not required or not all(
@@ -43,6 +57,25 @@ def _validate_expected(task_type: str, expected: Any, location: str) -> None:
     else:
         if not isinstance(expected, dict) or not expected:
             raise ValueError(f"{location}: expected must contain constraints")
+        if "ifeval" in expected:
+            if set(expected) != {"ifeval"} or not isinstance(expected["ifeval"], dict):
+                raise ValueError(f"{location}: ifeval must be the only expected field")
+            value = expected["ifeval"]
+            ids = value.get("instruction_id_list")
+            kwargs = value.get("kwargs")
+            if (
+                set(value) != {"key", "instruction_id_list", "kwargs"}
+                or isinstance(value.get("key"), bool)
+                or not isinstance(value.get("key"), int)
+                or not isinstance(ids, list)
+                or not ids
+                or not all(isinstance(item, str) and item for item in ids)
+                or not isinstance(kwargs, list)
+                or len(kwargs) != len(ids)
+                or not all(isinstance(item, dict) for item in kwargs)
+            ):
+                raise ValueError(f"{location}: malformed IFEval constraints")
+            return
         allowed = {"contains_all", "contains_none", "max_words", "valid_json"}
         if unknown := set(expected) - allowed:
             raise ValueError(f"{location}: unsupported constraints: {sorted(unknown)}")

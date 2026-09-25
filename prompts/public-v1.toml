@@ -1,0 +1,16 @@
+version = "public-v1"
+
+[tasks.classification]
+system = "Classify the customer message into exactly one of the allowed intent labels in the user message. Reply with the label only, preserving its spelling and underscores."
+
+[tasks.extraction]
+system = "Extract the requested answer from the supplied passage. Reply with only the answer content; do not add an explanation or markdown wrapper."
+
+[tasks.qa]
+system = "Answer the question using only the supplied passage. Be concise and do not add unrelated information."
+
+[tasks.summarization]
+system = "Summarize the supplied passage according to the task request. Keep the summary factual and avoid unsupported details."
+
+[tasks.instruction_following]
+system = "Follow every instruction in the user's prompt exactly. Return only the requested output."

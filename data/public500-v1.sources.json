@@ -1,0 +1,47 @@
+{
+  "dataset_sha256": "9440105600e3ad7e5535821117d62885bd5c593c6f91cd44008d74de93e3d840",
+  "cases": 500,
+  "task_counts": {
+    "classification": 100,
+    "extraction": 100,
+    "qa": 100,
+    "summarization": 100,
+    "instruction_following": 100
+  },
+  "selection_seed": "evalframe-public500-v1",
+  "sources": {
+    "dolly": {
+      "name": "Databricks Dolly 15k",
+      "revision": "bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a",
+      "license": "CC BY-SA 3.0",
+      "filename": "databricks-dolly-15k.jsonl",
+      "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k/resolve/bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a/databricks-dolly-15k.jsonl",
+      "sha256": "2df9083338b4abd6bceb5635764dab5d833b393b55759dffb0959b6fcbf794ec"
+    },
+    "ifeval": {
+      "name": "Google IFEval",
+      "revision": "966cd89545d6b6acfd7638bc708b98261ca58e84",
+      "license": "Apache 2.0",
+      "filename": "ifeval_input_data.jsonl",
+      "url": "https://huggingface.co/datasets/google/IFEval/resolve/966cd89545d6b6acfd7638bc708b98261ca58e84/ifeval_input_data.jsonl",
+      "sha256": "6a85310ca8ce15eff755aa08a3a4ff931c7e273e7515ebb3c492ea85fd8288f2"
+    },
+    "banking_test": {
+      "name": "PolyAI BANKING77 test split",
+      "revision": "57ec275d8078af65b7731c2a98be812d844a6d6b",
+      "license": "CC BY 4.0",
+      "filename": "banking77-test.csv",
+      "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/banking_data/test.csv",
+      "sha256": "d12d6e3bc4c3103966ae786dc435913c0c563dfa328f5a3646d0e62cfeeb474d"
+    },
+    "banking_categories": {
+      "name": "PolyAI BANKING77 category list",
+      "revision": "57ec275d8078af65b7731c2a98be812d844a6d6b",
+      "license": "CC BY 4.0",
+      "filename": "banking77-categories.json",
+      "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/banking_data/categories.json",
+      "sha256": "53261da888122daf2d120d925458631d9619e15d82e56052e7a42e535ce32b63"
+    }
+  },
+  "note": "Source labels were screened with deterministic length/overlap filters; the 500 rows have not been individually human-labeled or checked for factual correctness."
+}

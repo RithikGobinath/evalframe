@@ -1,6 +1,6 @@
 # EvalFrame
 
-EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot** and a **500-case synthetic throughput dataset**. The synthetic dataset has been run locally and on Cloud Run; a curated public-source benchmark is still planned.
+EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot**, a **500-case synthetic throughput dataset**, and a **500-case public-source benchmark** with 100 cases per task. The public benchmark combines pinned BANKING77, Dolly 15k, and IFEval examples; see the [dataset and scoring guide](docs/public-benchmark.md).
 
 ## What works now
 
@@ -15,7 +15,7 @@ The pilot's summarization score checks required and forbidden phrases. It is a *
 
 The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, cost estimate, $4 monthly OpenRouter key cap, and local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
 
-For the full 500-case run, the selected candidate sources are [Databricks Dolly 15k and Google IFEval](docs/benchmark-sources.md). Source-specific scoring and case review are the next dataset milestone.
+The public benchmark is reproducibly built from pinned upstream files with SHA-256 checks. It includes source attribution on each case. Its reference answers were screened automatically but have not been individually reviewed; reference-based scores are proxies for answer quality.
 
 `docs/ci-workflow.yml` is the GitHub Actions template. It can be moved to `.github/workflows/ci.yml` after the GitHub authorization used for pushing has `workflow` permission.
 
@@ -100,7 +100,7 @@ Each line is a JSON object. IDs must be unique. Task-specific `expected` values 
 {"case_id":"cls-001","task_type":"classification","input":"Categories: billing, technical. Ticket: I was charged twice.","expected":"billing","tags":["easy"]}
 ```
 
-For extraction, `expected` is a JSON object. For summarization, it contains `required_phrases` and optional `forbidden_phrases`. For instruction following, it can contain `contains_all`, `contains_none`, `max_words`, and `valid_json`. See `data/pilot.jsonl` for examples. Avoid storing personal or confidential data in datasets until the MLflow server and artifact store access controls have been configured.
+For extraction, `expected` is a JSON object or `{"reference_text":"..."}`. For summarization, it contains `required_phrases` and optional `forbidden_phrases`, or `{"reference_summary":"..."}`. For instruction following, it can contain `contains_all`, `contains_none`, `max_words`, and `valid_json`, or an IFEval constraint record. See `data/pilot.jsonl` and `data/public500-v1.jsonl` for examples. Avoid storing personal or confidential data in datasets until the MLflow server and artifact store access controls have been configured.
 
 ## Scoring and comparison
 
@@ -109,6 +109,8 @@ For extraction, `expected` is a JSON object. For summarization, it contains `req
 - Q&A: normalized token F1, with exact match also recorded.
 - Summarization: required phrase coverage; any forbidden phrase makes the score zero.
 - Instruction following: pass only if every specified constraint passes.
+
+The public dataset also supports reference token F1 for extraction, reference ROUGE-L F1 for summarization, and Google's strict IFEval verifier for instruction following. Those metrics are described in the [public benchmark guide](docs/public-benchmark.md).
 
 `mean_score` includes errors as zero. Always inspect per-task scores and case-level failures; the pilot's overall mean is not a calibrated quality index. API settings are currently limited to model ID and maximum output tokens. Provider-specific settings and cost estimates are future work.
 
