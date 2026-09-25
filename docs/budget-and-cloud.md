@@ -12,7 +12,7 @@ The dedicated EvalFrame OpenRouter key has its own $4 monthly credit limit, and 
 - Secret Manager secret: `evalframe-openrouter-key`. The job reads a pinned secret version; the key value is never placed in source control or job arguments.
 - Job identity: `evalframe-job@evalframe-rithik-2026.iam.gserviceaccount.com`, with object access on the results bucket and secret access on that one secret.
 
-The 20-case-per-model cloud smoke test and the [500-case-per-model cloud benchmark](../results/cloud-benchmark500-v1/README.md) completed with zero request errors; see [Cloud Run operations](cloud-run.md) for execution details.
+The synthetic 20-case-per-model smoke test and [500-case-per-model cloud benchmark](../results/cloud-benchmark500-v1/README.md), plus the public-source diagnostic and [500-case-per-model public benchmark](../results/public-benchmark500-v1/README.md), completed with zero request errors; see [Cloud Run operations](cloud-run.md) for execution details. The public benchmark uses a second finite job, `evalframe-public-benchmark`, with the same resource limits and no schedule.
 
 The job exits after each run. MLflow uses SQLite inside the container while running, then exports its database and artifacts to Cloud Storage. There is no continuously running MLflow server or Cloud SQL instance.
 

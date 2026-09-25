@@ -15,7 +15,7 @@ The pilot's summarization score checks required and forbidden phrases. It is a *
 
 The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, cost estimate, $4 monthly OpenRouter key cap, and local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
 
-The public benchmark is reproducibly built from pinned upstream files with SHA-256 checks. It includes source attribution on each case. Its reference answers were screened automatically but have not been individually reviewed; reference-based scores are proxies for answer quality.
+The public benchmark is reproducibly built from pinned upstream files with SHA-256 checks. It includes source attribution on each case. Its reference answers were screened automatically but have not been individually reviewed; reference-based scores are proxies for answer quality. The [500-case-per-model public-source Cloud Run report](results/public-benchmark500-v1/README.md) includes full case files, per-task scores, and reviewed limitations.
 
 `docs/ci-workflow.yml` is the GitHub Actions template. It can be moved to `.github/workflows/ci.yml` after the GitHub authorization used for pushing has `workflow` permission.
 

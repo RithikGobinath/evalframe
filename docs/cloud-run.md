@@ -50,3 +50,9 @@ Cloud Run's `gcloud run jobs deploy --args` parser rejected repeated `--model` a
 - Cloud Build `b69c9692-321a-4c3c-9550-ebb5211b1534` succeeded and pushed the immutable image digest above.
 - Smoke execution `evalframe-benchmark-dgmcs` finished successfully. Both models completed 20 of 20 cases with zero errors; the GCS summary and MLflow SQLite export exist.
 - Full execution `evalframe-benchmark-2pdxh` completed successfully in 13 minutes 33 seconds. Each model has 500 completed cases and zero errors. The downloaded case files match the manifest's 500 IDs, and their mean scores match the summary. The MLflow SQLite export exists in Cloud Storage.
+
+## Public-source benchmark job
+
+The separate `evalframe-public-benchmark` job uses `data/public500-v1.jsonl` and `prompts/public-v1.toml` with the same two models. It is pinned to image digest `sha256:d514168c61408f093c7308bbaf5f19382c37d4cf78e71b83ead296d65c73efca` and code revision `416d906f69182c2e5aacda0253f1698143d71c5c`. It uses the existing service account, pinned secret version 2, bucket, one vCPU, 1 GiB memory, one task, zero retries, and 60-minute timeout. The job currently points at run ID `public-benchmark500-v1`; re-executing that ID would restore the completed checkpoints.
+
+The diagnostic execution `evalframe-public-benchmark-7t6vd` finished 20 cases per model with zero errors. The full execution [`evalframe-public-benchmark-rrkfr`](https://console.cloud.google.com/run/jobs/executions/details/us-central1/evalframe-public-benchmark-rrkfr?project=472137125970) completed 500 cases per model with zero API errors in 18 minutes 47 seconds. The [published report](../results/public-benchmark500-v1/README.md) includes the downloaded case files and limitations. Cloud artifacts, including MLflow, are under `gs://evalframe-rithik-2026-results/evalframe/runs/public-benchmark500-v1/`. The job has no schedule.
