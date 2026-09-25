@@ -1,6 +1,6 @@
 # EvalFrame
 
-EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot** and a **500-case synthetic throughput dataset**. A curated public-source benchmark and Cloud Run deployment are not yet complete.
+EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot** and a **500-case synthetic throughput dataset**. The synthetic dataset has been run locally and on Cloud Run; a curated public-source benchmark is still planned.
 
 ## What works now
 
@@ -114,7 +114,7 @@ For extraction, `expected` is a JSON object. For summarization, it contains `req
 
 ## Deployment path
 
-The evaluator image's entrypoint is `evalframe`. The Google Cloud project `evalframe-rithik-2026` exists with billing disabled. Under the $5/month constraint, deployment will use a finite **Cloud Run Job** and export its MLflow tracking data to Cloud Storage; a permanent MLflow/Cloud SQL service is deferred. The `--gcs-bucket` option now saves each completed case to Cloud Storage for job retries and exports the final results and MLflow files. The job has not been deployed because billing is disabled. See the [Cloud Run plan](docs/cloud-run.md), [budget status](docs/budget-and-cloud.md), and [project roadmap](docs/roadmap.md).
+The evaluator image's entrypoint is `evalframe`. Google Cloud project `evalframe-rithik-2026` has a finite **Cloud Run Job** that exports case results and MLflow data to Cloud Storage. The `--gcs-bucket` option saves each completed case for job retries. The 20-case-per-model smoke test and [500-case-per-model cloud benchmark](results/cloud-benchmark500-v1/README.md) both completed with zero request errors. A separate $5/month Google Cloud budget **alerts** on spending but does not cap it. See [Cloud Run operations](docs/cloud-run.md), [budget status](docs/budget-and-cloud.md), and [project roadmap](docs/roadmap.md).
 
 ## Security notes
 

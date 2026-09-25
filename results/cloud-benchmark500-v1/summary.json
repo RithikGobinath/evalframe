@@ -1,0 +1,42 @@
+{
+  "openrouter:openai/gpt-6-luna": {
+    "cases": 500,
+    "completed": 500,
+    "errors": 0,
+    "mean_score": 0.968,
+    "latency_p50_ms": 1384.815,
+    "latency_p95_ms": 2345.763499999999,
+    "input_tokens": 35007,
+    "output_tokens": 19146,
+    "classification_mean_score": 0.99,
+    "classification_cases": 100,
+    "extraction_mean_score": 0.9866666666666667,
+    "extraction_cases": 100,
+    "qa_mean_score": 0.8633333333333333,
+    "qa_cases": 100,
+    "summarization_mean_score": 1.0,
+    "summarization_cases": 100,
+    "instruction_following_mean_score": 1.0,
+    "instruction_following_cases": 100
+  },
+  "openrouter:anthropic/claude-haiku-4.5": {
+    "cases": 500,
+    "completed": 500,
+    "errors": 0,
+    "mean_score": 0.680169696969697,
+    "latency_p50_ms": 793.9200000000001,
+    "latency_p95_ms": 1250.0479999999998,
+    "input_tokens": 36177,
+    "output_tokens": 9045,
+    "classification_mean_score": 0.91,
+    "classification_cases": 100,
+    "extraction_mean_score": 0.0,
+    "extraction_cases": 100,
+    "qa_mean_score": 0.7408484848484849,
+    "qa_cases": 100,
+    "summarization_mean_score": 1.0,
+    "summarization_cases": 100,
+    "instruction_following_mean_score": 0.75,
+    "instruction_following_cases": 100
+  }
+}

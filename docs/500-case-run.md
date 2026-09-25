@@ -6,7 +6,7 @@
 
 - OpenRouter account: $4.65 available credit, auto top-up off. A $5.00 credit purchase was recorded today, so no further purchase is planned.
 - The dedicated EvalFrame API key is limited to **$4 of credits per month**. This is the provider-side ceiling for its model calls. Do not use a different unlimited key for this run.
-- Google Cloud project billing remains disabled. Run locally with local MLflow/SQLite; Cloud Run deployment is a separate milestone.
+- This September 23 cost estimate applied to the local run. Google Cloud billing was linked on September 24 for the separate Cloud Run deployment; see [budget and cloud status](budget-and-cloud.md).
 - Current model prices: [GPT-6 Luna](https://openrouter.ai/openai/gpt-6-luna) is $0.10/M input and $0.50/M output tokens; [Claude Haiku 4.5](https://openrouter.ai/anthropic/claude-haiku-4.5) is $1/M input and $5/M output tokens. Recheck before a live run.
 
 With 500 cases **per model**, 1,024 reserved input tokens per case, and `--max-output-tokens 512`, the offline planning estimate is $0.18 for GPT and $1.79 for Claude, or $1.97 combined. A 2× margin is $3.94, below the $4 key limit. These figures assume the listed text-token prices; provider accounting and pricing may differ. The key cap, rather than this estimate, is the spending control.

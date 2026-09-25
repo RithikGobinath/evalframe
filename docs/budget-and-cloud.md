@@ -1,31 +1,23 @@
 # Budget and cloud status
 
-The project `evalframe-rithik-2026` has been created in Google Cloud. **Billing is not linked**, and no Cloud Run job, Cloud SQL instance, storage bucket, model API call, or other paid resource has been created for this project. The unprivileged `evalframe-job` service account exists. On September 24, 2026, Google Cloud rejected enabling the Run, Build, Registry, and Secret Manager APIs because billing is disabled.
+As of September 24, 2026, Google Cloud project `evalframe-rithik-2026` is linked to billing account `01B297-BF7CD4-99F6E3`. A separate **$5 monthly alert budget** named `EvalFrame $5 monthly alert` is scoped to this project, with email thresholds at 50%, 80%, and 100%. Google Cloud budget alerts can lag and **do not stop charges**. Review the project's Billing page before further cloud work.
 
-The requested operating limit is $5 per month. Treat it as a combined limit across Google Cloud and model APIs, including OpenRouter, unless the owner specifies otherwise. Keep Google Cloud billing unlinked. Free OpenRouter models may be used locally within their rate limits; paid models need an explicit check of credits and limits before use.
+The dedicated EvalFrame OpenRouter key has its own $4 monthly credit limit, and auto top-up is off. OpenRouter charges are separate from Google Cloud charges. The user's current preference is a separate $5 monthly Google Cloud alert, which does not have to be a hard limit. Keep runs finite and check key usage and billing before new experiments.
 
-## Spending controls before live runs
+## Current resources
 
-1. In the OpenAI API project settings, set a monthly **hard spend limit**, with enforcement enabled. A spend alert alone does not stop requests. Leave headroom because OpenAI says enforcement is not instantaneous.
-2. In Claude Console → Settings → Billing, set a monthly spend limit below the desired Claude allocation. Use a dedicated workspace and workspace limit if available for this account.
-3. In Google Cloud Billing, check whether the Preview **spend cap budget** is available for this project and Cloud Run. Its cap is per eligible service, not across all Google Cloud charges, and ongoing storage can continue accruing charges. An alerts-only budget is not a cap.
-4. Before a cloud benchmark, run a bounded 20-case-per-model cloud smoke test. The local 500-case-per-model benchmark already established model token use; recheck prices, key balance, and any new cloud charges before another full run.
+- Cloud Run Job: `evalframe-benchmark` in `us-central1`, one task, zero retries, 1 vCPU, 1 GiB memory, and a 60-minute task timeout.
+- Cloud Storage bucket: `gs://evalframe-rithik-2026-results`, with per-case checkpoints and exported reports/MLflow data.
+- Artifact Registry repository: `us-central1-docker.pkg.dev/evalframe-rithik-2026/evalframe`.
+- Secret Manager secret: `evalframe-openrouter-key`. The job reads a pinned secret version; the key value is never placed in source control or job arguments.
+- Job identity: `evalframe-job@evalframe-rithik-2026.iam.gserviceaccount.com`, with object access on the results bucket and secret access on that one secret.
 
-For OpenRouter specifically, use a dedicated key with a monthly limit below the remaining budget, disable auto recharge, and check the model's current price. Its free plan has API access and free models, but no budget controls. OpenRouter's terms state a $5 minimum credit purchase. With a strict **under $5 total cash outlay**, stay on free models unless credits already exist; a new paid top-up does not meet that strict ceiling. See [OpenRouter setup](openrouter-under-5.md).
+The 20-case-per-model cloud smoke test and the [500-case-per-model cloud benchmark](../results/cloud-benchmark500-v1/README.md) completed with zero request errors; see [Cloud Run operations](cloud-run.md) for execution details.
 
-An exact $5 ceiling across all three vendors cannot be guaranteed by Google Cloud budget alerts or by this application alone. With a strict no-overage requirement, keep Google Cloud billing unlinked and perform only local/offline validation until the owner accepts the available controls.
+The job exits after each run. MLflow uses SQLite inside the container while running, then exports its database and artifacts to Cloud Storage. There is no continuously running MLflow server or Cloud SQL instance.
 
-## Cloud architecture under a small budget
+## Cost controls and limits
 
-The earlier proposal to host a permanent MLflow service backed by Cloud SQL is deferred. It would introduce continuously running database costs. The lower-cost design is one Cloud Run Job per benchmark, with local MLflow SQLite tracking during the job and a final export of its database, artifacts, and case-level results to Cloud Storage. The job should exit after processing.
+Google Cloud's [budget documentation](https://docs.cloud.google.com/billing/docs/how-to/budgets) says an alerts-only budget does not cap spend and notifications can be delayed. [Cloud Run Jobs](https://cloud.google.com/run/pricing), [Cloud Build](https://cloud.google.com/build/pricing), [Artifact Registry](https://cloud.google.com/artifact-registry/pricing), [Secret Manager](https://cloud.google.com/secret-manager/pricing), and [Cloud Storage](https://cloud.google.com/storage/pricing) each have separate pricing and free allowances. The allowances can be shared across projects on the same billing account. A successful test run and its current alert setting do not prove that future monthly charges will remain under $5.
 
-Per-case Cloud Storage checkpointing and final export are now implemented in the application, but the container has not been built or run in Google Cloud. Once billing and spend controls are in place, configure Secret Manager, the existing dedicated service account's limited permissions, a small Cloud Storage bucket in an eligible US region, Artifact Registry, and a Cloud Run Job. Use one job task and conservative concurrency at first. Re-evaluate fixed costs and free-tier terms before creating any resource. See the [Cloud Run plan](cloud-run.md).
-
-## Source documentation
-
-- [OpenAI spend limits](https://developers.openai.com/api/docs/guides/spend-limits)
-- [Claude API spend limits](https://platform.claude.com/docs/en/api/rate-limits)
-- [Google Cloud spend cap budgets and limitations](https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps)
-- [Google Cloud Storage pricing and free tier](https://cloud.google.com/storage/pricing)
-- [OpenRouter pricing and free plan](https://openrouter.ai/pricing)
-- [OpenRouter credit purchase terms](https://openrouter.ai/terms)
+Use a fresh run ID for changed inputs or images. Before another paid model run, verify the OpenRouter key's remaining credit and current model prices. Keep auto top-up disabled. The Cloud Run job has no scheduled trigger and therefore incurs compute charges only when manually executed.

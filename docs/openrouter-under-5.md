@@ -1,6 +1,8 @@
 # OpenRouter setup with a strict $5 total limit
 
-1. Leave Google Cloud billing disabled. Local Python, local MLflow, and the existing pilot dataset cost nothing in cloud fees.
+**Historical setup guide (September 23, 2026).** The user later approved a separate $5/month Google Cloud alert, and the Cloud Run job is now deployed. For the current budget and deployment, see [budget and cloud status](budget-and-cloud.md) and [Cloud Run operations](cloud-run.md). The steps below describe the earlier local-only phase.
+
+1. For the earlier local-only phase, Google Cloud billing was disabled. Local Python, local MLflow, and the pilot dataset incurred no Google Cloud fees.
 2. Sign in to [OpenRouter](https://openrouter.ai/), visit [Keys](https://openrouter.ai/settings/keys), and create a dedicated `evalframe-local` key. Never put the key in a dataset, `.env` file committed to Git, issue, or chat.
 3. For **less than $5 total cash spent this month**, select a model marked free in the [current free catalog](https://openrouter.ai/collections/free-models/) and do not buy credits or enable auto recharge. The free plan lists 50 requests per day and does not offer budget controls. Free models generally will not give a direct Claude-versus-GPT benchmark.
 4. In a PowerShell terminal in the repository, install the project if needed and set the key only for that terminal:
@@ -22,7 +24,7 @@
      --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
    ```
 
-6. Inspect `runs/smoke-gemma/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The full 500-case benchmark dataset and durable Cloud Run workflow still need to be built.
+6. Inspect `runs/smoke-gemma/summary.json` and the [OpenRouter activity page](https://openrouter.ai/activity). Advance to 20 pilot cases only after the first run succeeds. The 500-case synthetic dataset and durable Cloud Run workflow were subsequently built; see the current status linked above.
 
 The first live smoke run with `nvidia/nemotron-3.5-lightning:free` reached OpenRouter successfully but produced long reasoning text. Both classification outputs hit the 128-token limit and scored zero. A follow-up with `google/gemma-4-31b-it:free` returned HTTP 429 for both cases, so its output quality has not yet been measured. Check [OpenRouter activity](https://openrouter.ai/activity) and your account's free-model limits before retrying; a 429 can reflect account or provider capacity, and the case files do not identify which. The harness now makes no automatic OpenRouter retries and stops queued cases on a 429.
 

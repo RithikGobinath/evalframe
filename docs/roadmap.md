@@ -19,21 +19,22 @@
 - [ ] Hold out benchmark cases from prompt tuning.
 - [ ] Add a human-labeled sample and calibrate any judge-based scoring against it.
 - [ ] Add provider-specific settings and a dated pricing table for cost estimates.
-- [ ] Record code revision and image digest with every run.
+- [x] Record code revision and image digest with every cloud run.
 
 **Acceptance:** each selected model completes 500 cases; every case is accounted for; the report contains per-task scores, error rate, latency, token usage, and reviewed failure examples.
 
 ## Milestone 3: Cloud Run
 
-- [x] Create the Google Cloud project `evalframe-rithik-2026` without linking billing.
+- [x] Create the Google Cloud project `evalframe-rithik-2026` and link billing for the deployment.
 - [x] Create a dedicated, unprivileged `evalframe-job` service account.
-- [ ] Configure provider hard spend limits and a Google Cloud budget strategy within the owner's $5/month limit.
+- [x] Configure a dedicated OpenRouter key with a $4 monthly credit limit and a separate $5/month Google Cloud alert budget. The Google Cloud alert is not a hard cap.
 - [x] Add per-case Cloud Storage checkpoints, restore, and result/MLflow export in the application.
-- [ ] Configure Artifact Registry, Cloud Storage, and Secret Manager only after billing controls are checked.
-- [ ] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
-- [ ] Run a 20-case cloud smoke test, then a 500-case benchmark.
+- [x] Configure Artifact Registry, Cloud Storage, and Secret Manager after linking billing and creating the budget.
+- [x] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
+- [x] Run a 20-case-per-model cloud smoke test with zero request errors.
+- [x] Finish and review the [500-case-per-model cloud benchmark](../results/cloud-benchmark500-v1/README.md): both models completed all cases with zero request errors.
 - [ ] Set provider request limits and a run-level spending limit before the full run.
 
-The dedicated OpenRouter EvalFrame key has a $4 monthly credit cap. The local 500-case-per-model run is complete; Cloud Run deployment remains pending.
+The local and Cloud Run 500-case-per-model runs and the Cloud Run smoke test are complete; see [Cloud Run operations](cloud-run.md).
 
 **Acceptance:** a fresh Cloud Run Job execution produces a durable MLflow comparison and downloadable case-level report; interrupted execution can resume without losing completed results. No live run starts unless its projected spend fits within the remaining monthly budget.

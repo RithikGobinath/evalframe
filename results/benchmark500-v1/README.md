@@ -25,7 +25,7 @@ After the full run and the preceding 10-request paid smoke test, the OpenRouter 
 - Prompt: `prompts/baseline.toml`, version `baseline-v1`. The dataset and prompt SHA-256 hashes are in [manifest.json](manifest.json).
 - Run settings: OpenRouter models `openai/gpt-6-luna` and `anthropic/claude-haiku-4.5`, 512 maximum output tokens, concurrency 2, run ID `benchmark500-v1`.
 - Scoring is deterministic. Extraction requires parseable raw JSON; classification uses exact match; QA uses token F1; summarization checks required and forbidden phrases; instruction following checks explicit constraints. The summarization score is a phrase-coverage proxy, not a human quality judgment.
-- This run executed locally and logged to local MLflow. Cloud Run deployment remains pending because Google Cloud billing is disabled to preserve the monthly spending limit.
+- This run executed locally and logged to local MLflow. The [Cloud Run repeat](../cloud-benchmark500-v1/README.md) completed on September 24 after the user approved a separate Google Cloud budget alert.
 
 ## Artifacts
 
