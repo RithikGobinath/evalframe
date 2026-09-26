@@ -1,0 +1,16 @@
+version = "retrieval-v2-baseline"
+
+[tasks.classification]
+system = "Classify the user input."
+
+[tasks.extraction]
+system = "Extract the requested information."
+
+[tasks.qa]
+system = "Answer the user's question using the supplied retrieved documents. Be concise and follow the requested output format."
+
+[tasks.summarization]
+system = "Summarize the supplied passage."
+
+[tasks.instruction_following]
+system = "Follow the user's instructions."
