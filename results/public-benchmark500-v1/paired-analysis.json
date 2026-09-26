@@ -1,0 +1,68 @@
+{
+  "dataset_sha256": "9440105600e3ad7e5535821117d62885bd5c593c6f91cd44008d74de93e3d840",
+  "prompt_sha256": "1f2c38b4224aab6d64ebdacf858026fce508371417d1f3374eccc882040cc822",
+  "models": {
+    "openrouter:openai/gpt-6-luna": {
+      "cases": 500,
+      "request_errors": 0,
+      "output_limit": 22,
+      "empty_visible_output": 6,
+      "input_tokens": 86002,
+      "output_tokens": 45348,
+      "latency_p50_ms": 1896.38,
+      "latency_p95_ms": 5438.907499999999
+    },
+    "openrouter:anthropic/claude-haiku-4.5": {
+      "cases": 500,
+      "request_errors": 0,
+      "output_limit": 6,
+      "empty_visible_output": 0,
+      "input_tokens": 93286,
+      "output_tokens": 46862,
+      "latency_p50_ms": 1073.77,
+      "latency_p95_ms": 4023.2734999999975
+    }
+  },
+  "tasks": {
+    "classification": {
+      "cases": 100,
+      "gpt_mean": 0.92,
+      "claude_mean": 0.82,
+      "gpt_higher": 11,
+      "claude_higher": 1,
+      "tied": 88
+    },
+    "extraction": {
+      "cases": 100,
+      "gpt_mean": 0.6701369005426661,
+      "claude_mean": 0.6837828524360774,
+      "gpt_higher": 17,
+      "claude_higher": 23,
+      "tied": 60
+    },
+    "qa": {
+      "cases": 100,
+      "gpt_mean": 0.6037745489617427,
+      "claude_mean": 0.5104055936752372,
+      "gpt_higher": 73,
+      "claude_higher": 27,
+      "tied": 0
+    },
+    "summarization": {
+      "cases": 100,
+      "gpt_mean": 0.40537410915379657,
+      "claude_mean": 0.31161607413234527,
+      "gpt_higher": 79,
+      "claude_higher": 20,
+      "tied": 1
+    },
+    "instruction_following": {
+      "cases": 100,
+      "gpt_mean": 0.83,
+      "claude_mean": 0.9,
+      "gpt_higher": 5,
+      "claude_higher": 12,
+      "tied": 83
+    }
+  }
+}

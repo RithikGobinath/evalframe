@@ -55,8 +55,12 @@ def compare(dataset: Path, baseline_dir: Path, mitigated_dir: Path) -> dict:
     digest = hashlib.sha256(raw).hexdigest()
     baseline_manifest, baseline = _read_run(baseline_dir, digest, set(case_by_id), "baseline")
     mitigated_manifest, mitigated = _read_run(mitigated_dir, digest, set(case_by_id), "mitigated")
-    if set(baseline) != set(mitigated):
-        raise ValueError("Baseline and mitigation use different model sets")
+    if (
+        baseline_manifest["case_ids"] != mitigated_manifest["case_ids"]
+        or baseline_manifest["models"] != mitigated_manifest["models"]
+        or baseline_manifest["max_output_tokens"] != mitigated_manifest["max_output_tokens"]
+    ):
+        raise ValueError("Baseline and mitigation use different cases, model order, or output limits")
     result = {
         "dataset_sha256": digest,
         "cases": len(cases),

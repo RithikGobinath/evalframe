@@ -2,6 +2,8 @@
 
 This benchmark has 100 examples each for classification, extraction, grounded question answering, summarization, and instruction following. The source dataset, source revision, original row ID, and source license are recorded in each JSONL case. The pinned download URLs and SHA-256 hashes are in [`data/public500-v1.sources.json`](../data/public500-v1.sources.json).
 
+See the [source selection record](benchmark-sources.md) for why each dataset was chosen and the [completed Cloud Run report](../results/public-benchmark500-v1/README.md) for per-task results and reviewed scoring caveats.
+
 | Task | Source | Scoring |
 | --- | --- | --- |
 | Classification | [PolyAI BANKING77](https://github.com/PolyAI-LDN/task-specific-datasets), test split, ten examples from each of ten banking intents | Exact intent label |

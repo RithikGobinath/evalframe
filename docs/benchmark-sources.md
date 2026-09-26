@@ -1,15 +1,17 @@
-# Proposed 500-case benchmark sources
+# Why these public sources
 
-The 20-case pilot in `data/pilot.jsonl` tests the harness. The full benchmark should use 100 reviewed cases in each task category, selected by stable source ID and committed as a versioned dataset only after the scorers are suitable for the source labels.
+The [public-source benchmark](public-benchmark.md) uses three datasets. The exact revisions, download URLs, licenses, and SHA-256 values are pinned in [`data/public500-v1.sources.json`](../data/public500-v1.sources.json). The [builder](../scripts/build_public500.py) turns the pinned files into the committed 500-case JSONL dataset.
 
-| EvalFrame task | Proposed source | Selection and scoring work |
+| EvalFrame task | Selected source | Reason for the choice |
 | --- | --- | --- |
-| Classification | [Databricks Dolly 15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) `classification` records | Select short, single-label outputs; normalize the allowable labels per case. |
-| Extraction | Dolly 15k `information_extraction` records | Review output shapes and support reference-text scoring where answers are lists or prose. Do not force every reference into the pilot's JSON scorer. |
-| Grounded Q&A | Dolly 15k `closed_qa` records | Include the supplied context in the prompt; score with answer normalization and token F1. |
-| Summarization | Dolly 15k `summarization` records | Replace phrase coverage with a reference metric and a human-calibrated rubric for factuality. |
-| Instruction following | [Google IFEval](https://huggingface.co/datasets/google/IFEval) | Implement its instruction-specific checks before selecting 100 cases. |
+| Banking intent classification | [PolyAI BANKING77 test split](https://github.com/PolyAI-LDN/task-specific-datasets) | Fixed intent names support exact-label scoring. We selected ten examples from each of ten intents. |
+| Information extraction | [Databricks Dolly 15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) `information_extraction` | Passage, request, and reference answer are available together. Answers are free text, so the scorer uses reference token F1 rather than the pilot's JSON-field scorer. |
+| Grounded Q&A | Dolly 15k `closed_qa` | The passage is supplied to the model; reference token F1 provides a reproducible, limited overlap measure. |
+| Summarization | Dolly 15k `summarization` | Provides a passage and reference response for ROUGE-L F1. Some source prompts ask questions or request fact lists, so the label is imperfect. |
+| Instruction following | [Google IFEval](https://huggingface.co/datasets/google/IFEval) | Its published instruction constraints can be checked by the [official strict verifier](https://github.com/google-research/google-research/tree/master/instruction_following_eval). The selected subset contains one constraint per prompt. |
 
-Dolly is published under CC BY-SA 3.0, and IFEval under Apache 2.0. Preserve source attribution, source revision, original record IDs, and dataset hashes. Dolly's own dataset card warns that annotation guidance was intentionally broad, so each selected record needs review. These are general-purpose language tasks; they should not be described as a customer-support benchmark.
+The earlier plan considered Dolly's `classification` rows, but their open-ended labels did not make a consistent exact-label benchmark. BANKING77 provided a fixed taxonomy. The builder applies deterministic length, duplicate, and answer-overlap filters, then selects by a stable hash order. No benchmark cases were chosen based on the models' measured scores.
 
-The benchmark should not be called complete until all 500 cases have validated labels and the scoring method for each task has been reviewed. A public benchmark can also overlap model training data, so the report should say it measures performance on these cases rather than unseen production behavior.
+These public labels are **not individually human-reviewed**. A passage can support more than one answer, a model can give a correct paraphrase with low lexical overlap, and the public examples may have been present in model training. The [run report](../results/public-benchmark500-v1/README.md) calls out concrete examples. This dataset is a reproducible public-source comparison, not an uncontaminated holdout or a customer-support production benchmark.
+
+The source cards mark BANKING77 as CC BY 4.0, Dolly 15k as CC BY-SA 3.0, and IFEval as Apache 2.0. The case file retains the source and revision for each row. Keep that attribution and the applicable source terms with redistributed derivatives.

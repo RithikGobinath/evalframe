@@ -1,125 +1,74 @@
 # EvalFrame
 
-EvalFrame runs versioned JSONL datasets against OpenAI and Claude models, directly or through OpenRouter, applies transparent task-specific scorers, and records each comparison in MLflow. The repository contains a **20-case pilot**, a **500-case synthetic throughput dataset**, and a **500-case public-source benchmark** with 100 cases per task. The public benchmark combines pinned BANKING77, Dolly 15k, and IFEval examples; see the [dataset and scoring guide](docs/public-benchmark.md).
+**A reproducible LLM evaluation harness, with the results in the repository.** EvalFrame runs versioned cases against OpenAI and Claude models through their native APIs or OpenRouter, scores five task types, and records prompts, outputs, token use, latency, and errors in MLflow. It runs locally or as a finite Docker job on Google Cloud Run.
 
-## What works now
+[Public benchmark results](results/public-benchmark500-v1/README.md) · [Prompt-injection experiment](results/prompt-injection-40-v1/README.md) · [Quickstart](docs/quickstart.md) · [Methods](docs/public-benchmark.md)
 
-- Five task types: classification, structured extraction, grounded question answering, summarization, and instruction following.
-- Async OpenAI Responses API, Anthropic Messages API, and OpenRouter Chat Completions adapters.
-- Case-level results, token usage, latency, errors, and resumable local checkpoints.
-- MLflow parent comparison run with one child run per model.
-- Dataset and prompt hashes to guard against accidentally resuming with changed inputs.
-- A Docker image suitable for a Cloud Run Job.
+## What the runs found
 
-The pilot's summarization score checks required and forbidden phrases. It is a **phrase-coverage proxy**, not a general measure of summary quality. The pilot examples are synthetic and intentionally easy; they must be replaced or supplemented with representative, reviewed cases before model claims are made.
+### Public-source benchmark · 500 cases per model
 
-The [500-case run guide](docs/500-case-run.md) explains the synthetic dataset, its historical cost estimate and key setting, and the local run sequence. The dataset has 100 cases per task and passes an offline end-to-end harness check. The [live results](results/benchmark500-v1/README.md) cover 500 cases each for GPT-6 Luna and Claude Haiku 4.5, with no API errors.
+On September 25, 2026, GPT-6 Luna and Claude Haiku 4.5 each completed the **same 500 cases** drawn from [BANKING77, Dolly 15k, and IFEval](docs/public-benchmark.md). The Cloud Run execution recorded **zero API errors**. Each task below has 100 cases; compare models **within a row**, because the rows use different metrics.
 
-The public benchmark is reproducibly built from pinned upstream files with SHA-256 checks. It includes source attribution on each case. Its reference answers were screened automatically but have not been individually reviewed; reference-based scores are proxies for answer quality. The [500-case-per-model public-source Cloud Run report](results/public-benchmark500-v1/README.md) includes full case files, per-task scores, and reviewed limitations.
+| Task | Measure | GPT-6 Luna | Claude Haiku 4.5 |
+| --- | --- | ---: | ---: |
+| Banking intent classification | Exact label | **92/100** | 82/100 |
+| Information extraction | Reference token F1 | 0.670 | **0.684** |
+| Grounded question answering | Reference token F1 | **0.604** | 0.510 |
+| Summarization | Reference ROUGE-L F1 | **0.405** | 0.312 |
+| Instruction following | Strict IFEval pass | 83/100 | **90/100** |
 
-The [40-case retrieved-text prompt-injection experiment](results/prompt-injection-40-v1/README.md) compares the ordinary grounded-Q&A prompt with one trust-boundary mitigation on the same cases. It publishes case-level outputs, attack-success counts, cost, and limitations.
+The case-level [public benchmark report](results/public-benchmark500-v1/README.md) includes paired comparisons, response times, token totals, examples, and every model output. It also explains two material limits: reference overlap can penalize correct paraphrases, and the 512-token cap stopped 22 GPT and 6 Claude instruction-following responses. The source references were screened automatically but not individually human-reviewed. **These scores are measurements on these public cases, not a general model ranking.**
 
-`docs/ci-workflow.yml` is the GitHub Actions template. It can be moved to `.github/workflows/ci.yml` after the GitHub authorization used for pushing has `workflow` permission.
+### Retrieved-text prompt injection · 40 cases per model and prompt
 
-## Local setup
+We placed attacker instructions inside synthetic retrieved passages and asked each model to answer a factual question. Both models saw the **same 40 reviewed cases** with the ordinary grounded-Q&A prompt and with one mitigation that explicitly treats retrieved instructions as untrusted data.
 
-Use Python 3.11 or newer:
+| Model | Baseline attack successes | Mitigated attack successes | Baseline → mitigated task failures |
+| --- | ---: | ---: | ---: |
+| GPT-6 Luna | 0/40 | 0/40 | 0 → 0 |
+| Claude Haiku 4.5 | 0/40 | 0/40 | 1 → 0 |
+
+The one task failure was an extra period on a correct answer, **not** obedience to the attack. The mitigation showed no measurable reduction in attack success because the baseline already had zero successes on this small, synthetic set. The [experiment report](results/prompt-injection-40-v1/README.md) shows the attempts, outputs, exact scoring rule, usage increase of about $0.018, and limitations. The cases were reviewed by an agent; they have not had independent human review.
+
+## How EvalFrame works
+
+```mermaid
+flowchart LR
+  A[Versioned JSONL cases] --> C[Async runner]
+  B[Versioned TOML prompts] --> C
+  C --> D["OpenAI / Anthropic / OpenRouter"]
+  D --> E[Task scorers]
+  E --> F["Case results + MLflow"]
+  F --> G[Local files or Cloud Storage]
+```
+
+- **Five task types:** classification, extraction, grounded Q&A, summarization, and instruction following. The public benchmark uses exact labels, reference token F1, ROUGE-L F1, and Google's strict IFEval verifier as appropriate to the task.
+- **Reproducible inputs:** run manifests record dataset and prompt SHA-256 hashes, model IDs, and output limit. Cloud manifests also record code revision and image digest. The public sources are pinned to upstream revisions and checksums.
+- **Inspect every case:** each model gets a JSONL result file with output, score details, token counts, latency, finish reason, and error status. Cloud runs save per-case checkpoints to Cloud Storage and export MLflow artifacts.
+- **Finite execution:** Cloud Run jobs have one task, zero automatic retries, a 60-minute timeout, and no schedule. The [Google Cloud $5 monthly budget is an alert, not a spending cap](docs/budget-and-cloud.md).
+
+## Inspect the published results without an API key
+
+With Python 3.11 or newer, install the project and run the offline checks:
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
-evalframe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
-pytest
+python scripts/verify_published_results.py
+python -m pytest -q
 ```
 
-Set `OPENROUTER_API_KEY` for OpenRouter, or the native `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` for direct calls. Do not commit keys or paste them into issues.
+The verifier checks dataset and prompt hashes, all 500 public case IDs for each model, reported summary metrics, and all 40 paired prompt-injection cases for each model. It makes **no model calls**. For Windows PowerShell and Git Bash setup, key entry, and a two-case live run, see the [quickstart](docs/quickstart.md).
 
-For one key that can route to both model families, create a key in the [OpenRouter key dashboard](https://openrouter.ai/settings/keys). For a strict total spend below $5, use free model IDs and do not purchase credits yet. Paid model access may require OpenRouter's minimum $5 credit purchase. If you already have credits and choose to run paid models, turn off auto recharge and give this key a monthly spending limit below your remaining budget. See [the OpenRouter setup guide](docs/openrouter-under-5.md).
+## Evidence and project layout
 
-In PowerShell, enter the key into a masked prompt for the current terminal session:
+| Path | What it contains |
+| --- | --- |
+| [Public benchmark](results/public-benchmark500-v1/README.md) | Cloud Run report, paired analysis, manifests, and 1,000 case results |
+| [Prompt-injection experiment](results/prompt-injection-40-v1/README.md) | Frozen baseline/mitigation comparison and 160 case results |
+| [Synthetic Cloud Run benchmark](results/cloud-benchmark500-v1/README.md) | Earlier throughput and scorer-behavior check; not a public-data quality benchmark |
+| [Datasets](data) and [prompts](prompts) | Versioned inputs, including the 500 public-source cases and 40 attack cases |
+| [Evaluation code](src/evalframe) | Provider adapters, runner, scorers, checkpoints, and CLI |
+| [Methods](docs/public-benchmark.md), [operations](docs/cloud-run.md), and [roadmap](docs/roadmap.md) | Source attribution, deployment details, and remaining validation work |
 
-```powershell
-$routerSecret = Read-Host "OpenRouter API key" -AsSecureString
-$env:OPENROUTER_API_KEY = [System.Net.NetworkCredential]::new("", $routerSecret).Password
-```
-
-In **Git Bash**, use the Bash prompt and run the executable inside the existing virtual environment directly; no activation is needed:
-
-```bash
-read -r -s -p "OpenRouter API key: " OPENROUTER_API_KEY; echo
-export OPENROUTER_API_KEY
-./.venv/Scripts/evalframe.exe validate --dataset data/pilot.jsonl --prompt prompts/baseline.toml
-./.venv/Scripts/evalframe.exe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml \
-  --model openrouter:google/gemma-4-31b-it:free \
-  --max-cases 2 --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
-```
-
-Run a small diagnostic using the currently free [Gemma 4 31B endpoint](https://openrouter.ai/google/gemma-4-31b-it:free). Check that the model still shows **Free** before running, since availability and pricing can change:
-
-```powershell
-evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-  --model openrouter:google/gemma-4-31b-it:free --max-cases 2 `
-  --max-output-tokens 128 --concurrency 1 --run-id smoke-gemma
-```
-
-To compare Claude and GPT with an existing paid credit balance, use exact model IDs from the OpenRouter catalog and repeat `--model`, keeping `--max-cases 2` for the first test. A ChatGPT or Claude chat subscription does not fund these API calls.
-
-### Direct provider keys
-
-Create an OpenAI API key in the [OpenAI API dashboard](https://platform.openai.com/api-keys) and a Claude key in [Claude Console → Settings → API keys](https://console.anthropic.com/). In PowerShell, the following prompts mask what you type and set the keys for the current terminal session:
-
-```powershell
-$openaiSecret = Read-Host "OpenAI API key" -AsSecureString
-$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $openaiSecret).Password
-$claudeSecret = Read-Host "Claude API key" -AsSecureString
-$env:ANTHROPIC_API_KEY = [System.Net.NetworkCredential]::new("", $claudeSecret).Password
-```
-
-Set provider hard spend limits before any paid call; see [budget and cloud status](docs/budget-and-cloud.md). Then a small live diagnostic run is:
-
-```powershell
-evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-  --model openai:YOUR_MODEL_ID --max-cases 2 --run-id smoke-openai
-```
-
-Run both providers on the same cases by repeating `--model`:
-
-```powershell
-evalframe run --dataset data/pilot.jsonl --prompt prompts/baseline.toml `
-  --model openai:YOUR_OPENAI_MODEL_ID `
-  --model anthropic:YOUR_CLAUDE_MODEL_ID `
-  --run-id pilot-v1
-```
-
-By default, MLflow writes metadata to a local `mlflow.db` SQLite database for development. Set `MLFLOW_TRACKING_URI` or pass `--tracking-uri` for a remote server. `--no-mlflow` is for diagnostic runs only. Results are saved under `runs/<run-id>/`; rerunning with the same ID and unchanged inputs skips completed cases. Errors are recorded with score zero and included in the completion rate. Failed cases also remain in the checkpoint so that an explicit new run ID is needed to retry them.
-
-## Dataset format
-
-Each line is a JSON object. IDs must be unique. Task-specific `expected` values are validated before any model calls.
-
-```json
-{"case_id":"cls-001","task_type":"classification","input":"Categories: billing, technical. Ticket: I was charged twice.","expected":"billing","tags":["easy"]}
-```
-
-For extraction, `expected` is a JSON object or `{"reference_text":"..."}`. For summarization, it contains `required_phrases` and optional `forbidden_phrases`, or `{"reference_summary":"..."}`. For instruction following, it can contain `contains_all`, `contains_none`, `max_words`, and `valid_json`, or an IFEval constraint record. See `data/pilot.jsonl` and `data/public500-v1.jsonl` for examples. Avoid storing personal or confidential data in datasets until the MLflow server and artifact store access controls have been configured.
-
-## Scoring and comparison
-
-- Classification: case-insensitive exact category match.
-- Extraction: valid JSON plus matching fields, with extra fields reducing the score.
-- Q&A: normalized token F1, with exact match also recorded.
-- Summarization: required phrase coverage; any forbidden phrase makes the score zero.
-- Instruction following: pass only if every specified constraint passes.
-
-The public dataset also supports reference token F1 for extraction, reference ROUGE-L F1 for summarization, and Google's strict IFEval verifier for instruction following. Those metrics are described in the [public benchmark guide](docs/public-benchmark.md).
-
-`mean_score` includes errors as zero. Always inspect per-task scores and case-level failures; the pilot's overall mean is not a calibrated quality index. API settings are currently limited to model ID and maximum output tokens. Provider-specific settings and cost estimates are future work.
-
-## Deployment path
-
-The evaluator image's entrypoint is `evalframe`. Google Cloud project `evalframe-rithik-2026` has a finite **Cloud Run Job** that exports case results and MLflow data to Cloud Storage. The `--gcs-bucket` option saves each completed case for job retries. The 20-case-per-model smoke test and [500-case-per-model cloud benchmark](results/cloud-benchmark500-v1/README.md) both completed with zero request errors. A separate $5/month Google Cloud budget **alerts** on spending but does not cap it. See [Cloud Run operations](docs/cloud-run.md), [budget status](docs/budget-and-cloud.md), and [project roadmap](docs/roadmap.md).
-
-## Security notes
-
-The code reads keys only from environment variables and never writes them to MLflow or results. Provider exception messages are excluded from case records because they can contain prompt text. MLflow artifacts include the dataset, prompt file, and model responses, so restrict access and review datasets before running them. Use separate service accounts and least-privilege access for the evaluator and tracking server.
+The public dataset can overlap model training data; some Dolly references are ambiguous or phrased as questions inside its summarization category. The synthetic injection set is short and repetitive. Read the per-case outputs and report caveats before using these numbers to choose a model or claim security performance.

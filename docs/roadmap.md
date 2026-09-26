@@ -1,42 +1,25 @@
-# Build roadmap
+# Project status and next work
 
-## Milestone 1: Pilot harness — in progress
+EvalFrame has a working evaluation harness, published case-level results, and a finite Cloud Run deployment. The public-source benchmark is reproducible, but its references are not individually human-reviewed. The prompt-injection experiment is small and synthetic. Those limits define the next work more clearly than another large model run would.
 
-- [x] Define and validate a versioned case schema.
-- [x] Add 20 synthetic cases across five task types.
-- [x] Add OpenAI and Claude adapters, deterministic scorers, CLI, and MLflow logging.
-- [x] Add a Dockerfile and offline tests.
-- [x] Run paid API smoke tests against chosen model IDs.
-- [ ] Review pilot score disagreements and improve prompts/rubrics.
+## Shipped
 
-## Milestone 2: Credible 500-case benchmark
+| Area | Evidence |
+| --- | --- |
+| Five-task pilot and scoring | [Pilot dataset](../data/pilot.jsonl), provider adapters, CLI, and local tests |
+| Synthetic throughput benchmark | [500-case Cloud Run report](../results/cloud-benchmark500-v1/README.md); useful for runner and scorer behavior, not general model quality |
+| Public-source comparison | [500 cases per model](../results/public-benchmark500-v1/README.md), pinned [source manifest](../data/public500-v1.sources.json), task-specific metrics, and all 1,000 outputs |
+| Prompt-injection experiment | [40 paired cases](../results/prompt-injection-40-v1/README.md) with frozen protocol, baseline, one mitigation, outputs, costs, and limitations |
+| Durable cloud execution | [Cloud Run operations](cloud-run.md): dedicated service account, Secret Manager key, per-case Cloud Storage checkpoints, MLflow export, one task, zero retries, no schedule |
+| Budget visibility | [Budget status](budget-and-cloud.md): separate Google Cloud $5 monthly **alert** and OpenRouter key limit; neither should be described as a combined hard cap |
 
-- [x] Build a 500-case synthetic throughput dataset with 100 cases per task and an offline harness check; see [500-case run](500-case-run.md). This is separate from the curated benchmark below.
-- [x] Run and publish a live 500-case-per-model synthetic comparison; see [results](../results/benchmark500-v1/README.md).
-- [ ] Agree on a real use case and success criteria for each task.
-- [x] Select candidate public sources for all five task types; see [benchmark sources](benchmark-sources.md).
-- [x] Build 500 reproducible public-source cases with pinned source revisions and task-specific reference metrics; see [public benchmark](public-benchmark.md).
-- [x] Run and publish the [public-source 500-case-per-model comparison](../results/public-benchmark500-v1/README.md), with 1,000 completed requests and zero API errors.
-- [ ] Build 100 reviewed cases per task, including edge and adversarial cases.
-- [ ] Hold out benchmark cases from prompt tuning.
-- [ ] Add a human-labeled sample and calibrate any judge-based scoring against it.
-- [ ] Add provider-specific settings and a dated pricing table for cost estimates.
-- [x] Record code revision and image digest with every cloud run.
+## Highest-value follow-up work
 
-**Acceptance:** each selected model completes 500 cases; every case is accounted for; the report contains per-task scores, error rate, latency, token usage, and reviewed failure examples.
+1. **Audit references.** Have an independent human review a sample of each public task, especially ambiguous extraction answers and the Dolly `summarization` rows that are really question answering. Record corrections as a new dataset version; keep v1 unchanged for reproducibility.
+2. **Calibrate quality measures.** Compare lexical F1 and ROUGE-L against human judgments for factual correctness and acceptable paraphrases. Keep strict exact checks for formats and IFEval constraints.
+3. **Build a true holdout.** Choose a real application, collect permissioned task examples, separate prompt development from final evaluation, and document data handling. Public examples may overlap model training data.
+4. **Strengthen prompt-injection testing.** Add independent human review, realistic multi-document retrieval, benign controls, varied attacker goals, and repeated responses. The first 40-case baseline had zero attack successes, so it cannot establish mitigation efficacy.
+5. **Tighten operational controls.** Add a run-level cost guard and provider request limits before larger paid runs; keep checking the live key limit and Google Cloud billing. The Cloud budget is an alert, not a stop mechanism.
+6. **Automate verification.** Promote the existing workflow template into an active CI workflow once GitHub credentials allow workflow changes. The offline verifier already checks the published summaries and case files.
 
-## Milestone 3: Cloud Run
-
-- [x] Create the Google Cloud project `evalframe-rithik-2026` and link billing for the deployment.
-- [x] Create a dedicated, unprivileged `evalframe-job` service account.
-- [x] Configure a dedicated OpenRouter key and a separate $5/month Google Cloud alert budget. The Google Cloud alert is not a hard cap. The key's current limit differs from the earlier $4 monthly setting; see [budget status](budget-and-cloud.md).
-- [x] Add per-case Cloud Storage checkpoints, restore, and result/MLflow export in the application.
-- [x] Configure Artifact Registry, Cloud Storage, and Secret Manager after linking billing and creating the budget.
-- [x] Deploy the evaluator image as a Cloud Run Job with a dedicated service account.
-- [x] Run a 20-case-per-model cloud smoke test with zero request errors.
-- [x] Finish and review the [500-case-per-model cloud benchmark](../results/cloud-benchmark500-v1/README.md): both models completed all cases with zero request errors.
-- [ ] Set provider request limits and a run-level spending limit before the full run.
-
-The local and Cloud Run 500-case-per-model runs and the Cloud Run smoke test are complete; see [Cloud Run operations](cloud-run.md).
-
-**Acceptance:** a fresh Cloud Run Job execution produces a durable MLflow comparison and downloadable case-level report; interrupted execution can resume without losing completed results. No live run starts unless its projected spend fits within the remaining monthly budget.
+Each new benchmark version should publish its frozen inputs, exact scorer, model settings, case-level outputs, cost basis, and known failure examples before making comparative claims.
