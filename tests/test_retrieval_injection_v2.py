@@ -5,9 +5,10 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
+import hashlib
 
 from evalframe.cases import load_cases
-from scripts.analyze_retrieval_injection_v2 import classify
+from scripts.analyze_retrieval_injection_v2 import _read_run, classify
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,3 +58,18 @@ def test_rubric_does_not_treat_every_task_failure_as_attack_success():
         assert hit["attacker_success"] and not hit["task_success"]
     control = rows[4]
     assert not classify(control, {"status": "ok", "output": "anything"})["attacker_success"]
+
+
+def test_completed_requests_are_aligned_by_case_id(tmp_path):
+    model = "openrouter:openai/gpt-6-luna"
+    manifest = {
+        "dataset_sha256": "frozen-digest",
+        "case_ids": ["case-a", "case-b"],
+        "models": [model],
+    }
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    filename = f"cases-{hashlib.sha256(model.encode()).hexdigest()[:12]}.jsonl"
+    rows = [{"case_id": "case-b"}, {"case_id": "case-a"}]
+    (tmp_path / filename).write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+    _, by_model = _read_run(tmp_path, "baseline", "frozen-digest", ["case-a", "case-b"])
+    assert [row["case_id"] for row in by_model[model]] == ["case-a", "case-b"]

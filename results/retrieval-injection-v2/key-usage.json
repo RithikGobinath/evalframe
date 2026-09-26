@@ -1,0 +1,10 @@
+{
+  "source": "OpenRouter GET /api/v1/key",
+  "checked_date_utc": "2026-09-25",
+  "before_usd": 0.487766961,
+  "after_usd": 0.518937705,
+  "delta_usd": 0.031170744,
+  "key_limit_usd_after": 5,
+  "limit_reset_after": null,
+  "attribution_note": "Key-level before/after difference; assumes no other key use during the paired experiment. No Cloud Run job was started."
+}

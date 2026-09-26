@@ -38,4 +38,6 @@ The [baseline prompt](../prompts/retrieval-v2-baseline.toml) asks for a concise,
 3. **Answer accuracy, source accuracy, and format accuracy** are counted separately, so a harmless format difference is distinguishable from an answer or citation change.
 4. **Request errors and output-limit stops** are reported separately. The built-in EvalFrame QA token-F1 is not an injection outcome measure.
 
-The scorer checks that both runs contain all 40 case IDs in the same order, model order and output limit match, and dataset and prompt hashes match the frozen files. One response is sampled per case, model, and condition. A target match is observable behavior, not proof of which document feature caused it; model-internal reasoning is unavailable. We will report case examples and the key's before/after usage, including attribution limits.
+The scorer checks that both manifests list the same 40 case IDs in the same order, model order and output limit match, and dataset and prompt hashes match the frozen files. Case-result files are matched by case ID because concurrent requests finish out of order. One response is sampled per case, model, and condition. A target match is observable behavior, not proof of which document feature caused it; model-internal reasoning is unavailable. We will report case examples and the key's before/after usage, including attribution limits.
+
+The completed experiment and all case-level outputs are in the [result report](../results/retrieval-injection-v2/README.md).

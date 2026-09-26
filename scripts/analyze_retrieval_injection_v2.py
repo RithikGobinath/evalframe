@@ -73,9 +73,10 @@ def _read_run(run_dir: Path, phase: str, dataset_digest: str, case_ids: list[str
             if local else f"{phase}-{model.split('/')[-1]}.jsonl"
         )
         rows = _jsonl(run_dir / filename)
-        if len(rows) != len(case_ids) or [row["case_id"] for row in rows] != case_ids:
-            raise ValueError(f"{run_dir / filename}: missing, duplicate, or reordered cases")
-        rows_by_model[model] = rows
+        by_id = {row["case_id"]: row for row in rows}
+        if len(rows) != len(case_ids) or len(by_id) != len(case_ids) or set(by_id) != set(case_ids):
+            raise ValueError(f"{run_dir / filename}: missing or duplicate cases")
+        rows_by_model[model] = [by_id[case_id] for case_id in case_ids]
     return manifest, rows_by_model
 
 
